@@ -122,3 +122,26 @@
     cursor: pointer;
   }
 }
+
+@layer utilities {
+  .modern-card {
+    @apply rounded-xl border border-border bg-card text-card-foreground shadow-sm;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-muted-foreground/30;
+  }
+}

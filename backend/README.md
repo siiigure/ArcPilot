@@ -1,5 +1,105 @@
 # FastAPI Project - Backend
 
+<!--
+中文翻译（注释版）
+
+# FastAPI 项目 - 后端
+
+## 环境要求
+- Docker
+- uv（用于 Python 依赖与虚拟环境管理）
+
+## Docker Compose
+- 按 `../development.md` 指南启动本地开发环境。
+
+## 通用开发流程
+- 使用 uv 管理依赖。
+- 在 `./backend/` 执行：
+```console
+$ uv sync
+```
+- 激活虚拟环境：
+```console
+$ source .venv/bin/activate
+```
+- 编辑器解释器请指向 `backend/.venv/bin/python`。
+- 主要代码位置：
+  - 数据模型与表：`./backend/app/models.py`
+  - API 路由：`./backend/app/api/`
+  - CRUD：`./backend/app/crud.py`
+
+## VS Code
+- 已预置调试配置，可使用断点、变量观察等。
+- 已预置测试配置，可在 VS Code Python Tests 面板运行测试。
+
+## Docker Compose Override
+- 可在 `compose.override.yml` 中添加仅本地生效的开发配置，不影响生产环境。
+- 当前配置支持将本地后端代码同步进容器，提升迭代效率。
+- 还覆盖了命令为 `fastapi run --reload`，代码变更会自动重载。
+- 若出现语法错误导致进程退出，修复后重新执行：
+```console
+$ docker compose watch
+```
+- 也可改成“保持容器常驻但不执行业务命令”的方式，再进容器手动运行命令，便于调试。
+- 进入容器：
+```console
+$ docker compose watch
+$ docker compose exec backend bash
+```
+- 在容器中运行热重载服务：
+```console
+$ fastapi run --reload app/main.py
+```
+
+## 后端测试
+- 执行：
+```console
+$ bash ./scripts/test.sh
+```
+- 测试基于 Pytest，测试文件在 `./backend/tests/`。
+- 使用 GitHub Actions 时会自动跑测试。
+
+### 对已运行中的栈执行测试
+```bash
+docker compose exec backend bash scripts/tests-start.sh
+```
+- 可附加 pytest 参数，例如首错即停：
+```bash
+docker compose exec backend bash scripts/tests-start.sh -x
+```
+
+### 覆盖率
+- 测试后会生成 `htmlcov/index.html`，可在浏览器查看覆盖率报告。
+
+## 数据库迁移（Migrations）
+- 本地开发时 `app` 目录挂载进容器，可在容器内执行 alembic 并把迁移文件保存在项目里。
+- 每次模型变更后应：
+  1) 生成 revision
+  2) 执行 upgrade 更新数据库结构
+- 进入容器：
+```console
+$ docker compose exec backend bash
+```
+- 生成迁移：
+```console
+$ alembic revision --autogenerate -m "Add column last_name to User model"
+```
+- 执行迁移：
+```console
+$ alembic upgrade head
+```
+- 请把 alembic 生成的迁移文件提交到 Git。
+- 若完全不想用迁移，可启用 `SQLModel.metadata.create_all(engine)`，并注释 `scripts/prestart.sh` 里的 `alembic upgrade head`。
+- 若要从零开始且没有历史 revision，可删除 `./backend/app/alembic/versions/` 下旧迁移文件后重新创建首个迁移。
+
+## 邮件模板
+- 模板位于 `./backend/app/email-templates/`：
+  - `src`：源 MJML
+  - `build`：应用实际使用的 HTML
+- 先安装 VS Code 的 MJML 扩展。
+- 新建/修改 `.mjml` 后，执行 `MJML: Export to HTML`，再把导出的 `.html` 保存到 `build` 目录。
+-->
+
 ## Requirements
 
 * [Docker](https://www.docker.com/).

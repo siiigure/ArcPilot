@@ -1,31 +1,27 @@
 import { createFileRoute } from "@tanstack/react-router"
 
-import useAuth from "@/hooks/useAuth"
+import { PostCard } from "@/components/feed/PostCard"
+import { QuickPostBox } from "@/components/feed/QuickPostBox"
+import { DEMO_POSTS } from "@/data/mock-feed"
 
 export const Route = createFileRoute("/_layout/")({
-  component: Dashboard,
+  component: FeedHome,
   head: () => ({
     meta: [
       {
-        title: "Dashboard - FastAPI Template",
+        title: "Arcpilot",
       },
     ],
   }),
 })
 
-function Dashboard() {
-  const { user: currentUser } = useAuth()
-
+function FeedHome() {
   return (
-    <div>
-      <div>
-        <h1 className="text-2xl truncate max-w-sm">
-          Hi, {currentUser?.full_name || currentUser?.email} 👋
-        </h1>
-        <p className="text-muted-foreground">
-          Welcome back, nice to see you again!!!
-        </p>
-      </div>
+    <div className="mx-auto max-w-2xl pb-8">
+      <QuickPostBox />
+      {DEMO_POSTS.map((post) => (
+        <PostCard key={post.id} post={post} />
+      ))}
     </div>
   )
 }

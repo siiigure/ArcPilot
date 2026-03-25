@@ -1,5 +1,86 @@
 # FastAPI Project - Frontend
 
+<!--
+中文翻译（注释版）
+
+# FastAPI 项目 - 前端
+
+前端基于 Vite、React、TypeScript、TanStack Query、TanStack Router 与 Tailwind CSS 构建。
+
+## 环境要求
+- 推荐安装 Bun，也可使用 Node.js。
+
+## 快速开始
+```bash
+bun install
+bun run dev
+```
+- 启动后访问 http://localhost:5173/ 。
+- 这是本地开发服务器（非 Docker），推荐用于日常开发；确认功能后再构建 Docker 镜像做接近生产环境的验证。
+- 其他可用脚本可查看 `package.json`。
+
+### 移除前端（仅 API 项目）
+- 删除 `./frontend` 目录。
+- 在 `compose.yml` 中删除 `frontend` 服务。
+- 在 `compose.override.yml` 中删除 `frontend` 与 `playwright` 服务。
+- 若需要清理，可同时移除 `.env` 与 `./scripts/*.sh` 中的 FRONTEND 相关环境变量（不删通常也不影响运行）。
+
+## 生成前端客户端（OpenAPI Client）
+
+### 自动方式
+- 先激活后端虚拟环境。
+- 在项目根目录执行：
+```bash
+bash ./scripts/generate-client.sh
+```
+- 提交生成后的改动。
+
+### 手动方式
+- 先启动 Docker Compose。
+- 下载 `http://localhost/api/v1/openapi.json` 到 `frontend/openapi.json`。
+- 执行：
+```bash
+bun run generate-client
+```
+- 提交改动。
+- 每次后端 OpenAPI 结构变化后，都需要重新生成客户端。
+
+## 使用远程 API
+- 在 `frontend/.env` 中设置：
+```env
+VITE_API_URL=https://api.my-domain.example.com
+```
+- 前端启动后会把该地址作为 API 基础 URL。
+
+## 代码结构
+- `frontend/src`：前端主代码
+- `frontend/src/assets`：静态资源
+- `frontend/src/client`：生成的 OpenAPI 客户端
+- `frontend/src/components`：前端组件
+- `frontend/src/hooks`：自定义 Hooks
+- `frontend/src/routes`：页面路由
+
+## 使用 Playwright 进行端到端测试
+- 先启动后端相关栈：
+```bash
+docker compose up -d --wait backend
+```
+- 运行测试：
+```bash
+bunx playwright test
+```
+- 以 UI 模式运行：
+```bash
+bunx playwright test --ui
+```
+- 停止并清理测试数据：
+```bash
+docker compose down -v
+```
+- 修改或新增测试文件：在 tests 目录进行。
+- 参考 Playwright 官方文档获取更多细节。
+-->
+
 The frontend is built with [Vite](https://vitejs.dev/), [React](https://reactjs.org/), [TypeScript](https://www.typescriptlang.org/), [TanStack Query](https://tanstack.com/query), [TanStack Router](https://tanstack.com/router) and [Tailwind CSS](https://tailwindcss.com/).
 
 ## Requirements
