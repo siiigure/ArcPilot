@@ -24,7 +24,6 @@ export const DEMO_POSTS: Post[] = [
       isFollowing: true,
     },
     timestamp: "2 小时前",
-    upvotes: 128,
     comments: 24,
     shares: 3,
   },
@@ -38,7 +37,6 @@ export const DEMO_POSTS: Post[] = [
       bio: "制图与可视化",
     },
     timestamp: "昨天",
-    upvotes: 56,
     comments: 12,
     image:
       "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1200&q=80",

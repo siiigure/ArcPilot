@@ -16,6 +16,10 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as LayoutRouteImport } from './routes/_layout'
 import { Route as LayoutIndexRouteImport } from './routes/_layout/index'
 import { Route as LayoutSettingsRouteImport } from './routes/_layout/settings'
+import { Route as LayoutTopicsIndexRouteImport } from './routes/_layout/topics/index'
+import { Route as LayoutUUserIdRouteImport } from './routes/_layout/u/$userId'
+import { Route as LayoutPostNewRouteImport } from './routes/_layout/post/new'
+import { Route as LayoutPostPostIdRouteImport } from './routes/_layout/post/$postId'
 
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
@@ -51,6 +55,26 @@ const LayoutSettingsRoute = LayoutSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => LayoutRoute,
 } as any)
+const LayoutTopicsIndexRoute = LayoutTopicsIndexRouteImport.update({
+  id: '/topics/',
+  path: '/topics/',
+  getParentRoute: () => LayoutRoute,
+} as any)
+const LayoutUUserIdRoute = LayoutUUserIdRouteImport.update({
+  id: '/u/$userId',
+  path: '/u/$userId',
+  getParentRoute: () => LayoutRoute,
+} as any)
+const LayoutPostNewRoute = LayoutPostNewRouteImport.update({
+  id: '/post/new',
+  path: '/post/new',
+  getParentRoute: () => LayoutRoute,
+} as any)
+const LayoutPostPostIdRoute = LayoutPostPostIdRouteImport.update({
+  id: '/post/$postId',
+  path: '/post/$postId',
+  getParentRoute: () => LayoutRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof LayoutIndexRoute
@@ -59,6 +83,10 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/settings': typeof LayoutSettingsRoute
+  '/post/$postId': typeof LayoutPostPostIdRoute
+  '/post/new': typeof LayoutPostNewRoute
+  '/u/$userId': typeof LayoutUUserIdRoute
+  '/topics/': typeof LayoutTopicsIndexRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
@@ -67,6 +95,10 @@ export interface FileRoutesByTo {
   '/signup': typeof SignupRoute
   '/settings': typeof LayoutSettingsRoute
   '/': typeof LayoutIndexRoute
+  '/post/$postId': typeof LayoutPostPostIdRoute
+  '/post/new': typeof LayoutPostNewRoute
+  '/u/$userId': typeof LayoutUUserIdRoute
+  '/topics': typeof LayoutTopicsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -77,6 +109,10 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/_layout/settings': typeof LayoutSettingsRoute
   '/_layout/': typeof LayoutIndexRoute
+  '/_layout/post/$postId': typeof LayoutPostPostIdRoute
+  '/_layout/post/new': typeof LayoutPostNewRoute
+  '/_layout/u/$userId': typeof LayoutUUserIdRoute
+  '/_layout/topics/': typeof LayoutTopicsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -87,6 +123,10 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/settings'
+    | '/post/$postId'
+    | '/post/new'
+    | '/u/$userId'
+    | '/topics/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
@@ -95,6 +135,10 @@ export interface FileRouteTypes {
     | '/signup'
     | '/settings'
     | '/'
+    | '/post/$postId'
+    | '/post/new'
+    | '/u/$userId'
+    | '/topics'
   id:
     | '__root__'
     | '/_layout'
@@ -104,6 +148,10 @@ export interface FileRouteTypes {
     | '/signup'
     | '/_layout/settings'
     | '/_layout/'
+    | '/_layout/post/$postId'
+    | '/_layout/post/new'
+    | '/_layout/u/$userId'
+    | '/_layout/topics/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -165,17 +213,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutSettingsRouteImport
       parentRoute: typeof LayoutRoute
     }
+    '/_layout/topics/': {
+      id: '/_layout/topics/'
+      path: '/topics'
+      fullPath: '/topics/'
+      preLoaderRoute: typeof LayoutTopicsIndexRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/u/$userId': {
+      id: '/_layout/u/$userId'
+      path: '/u/$userId'
+      fullPath: '/u/$userId'
+      preLoaderRoute: typeof LayoutUUserIdRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/post/new': {
+      id: '/_layout/post/new'
+      path: '/post/new'
+      fullPath: '/post/new'
+      preLoaderRoute: typeof LayoutPostNewRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/post/$postId': {
+      id: '/_layout/post/$postId'
+      path: '/post/$postId'
+      fullPath: '/post/$postId'
+      preLoaderRoute: typeof LayoutPostPostIdRouteImport
+      parentRoute: typeof LayoutRoute
+    }
   }
 }
 
 interface LayoutRouteChildren {
   LayoutSettingsRoute: typeof LayoutSettingsRoute
   LayoutIndexRoute: typeof LayoutIndexRoute
+  LayoutPostPostIdRoute: typeof LayoutPostPostIdRoute
+  LayoutPostNewRoute: typeof LayoutPostNewRoute
+  LayoutUUserIdRoute: typeof LayoutUUserIdRoute
+  LayoutTopicsIndexRoute: typeof LayoutTopicsIndexRoute
 }
 
 const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutSettingsRoute: LayoutSettingsRoute,
   LayoutIndexRoute: LayoutIndexRoute,
+  LayoutPostPostIdRoute: LayoutPostPostIdRoute,
+  LayoutPostNewRoute: LayoutPostNewRoute,
+  LayoutUUserIdRoute: LayoutUUserIdRoute,
+  LayoutTopicsIndexRoute: LayoutTopicsIndexRoute,
 }
 
 const LayoutRouteWithChildren =

@@ -1,3 +1,4 @@
+#数据库连接配置（SQLALCHEMY_DATABASE_URI）
 import secrets
 import warnings
 from typing import Annotated, Any, Literal

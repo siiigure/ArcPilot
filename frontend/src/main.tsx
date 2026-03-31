@@ -10,6 +10,7 @@ import ReactDOM from "react-dom/client"
 import { ApiError, OpenAPI } from "./client"
 import { ThemeProvider } from "./components/theme-provider"
 import { Toaster } from "./components/ui/sonner"
+import { LocaleProvider } from "./contexts/locale-context"
 import "./index.css"
 import { routeTree } from "./routeTree.gen"
 
@@ -48,10 +49,12 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       enableSystem
       storageKey="vite-ui-theme"
     >
-      <QueryClientProvider client={queryClient}>
-        <RouterProvider router={router} />
-        <Toaster richColors closeButton />
-      </QueryClientProvider>
+      <LocaleProvider>
+        <QueryClientProvider client={queryClient}>
+          <RouterProvider router={router} />
+          <Toaster richColors closeButton />
+        </QueryClientProvider>
+      </LocaleProvider>
     </ThemeProvider>
   </StrictMode>,
 )

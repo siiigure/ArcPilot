@@ -6,6 +6,8 @@ export interface Topic {
 }
 
 export interface PostAuthor {
+  /** 用户 public_id，用于跳转资料页 */
+  id?: string | null
   name: string
   avatar: string
   bio?: string
@@ -18,7 +20,6 @@ export interface Post {
   content: string
   author: PostAuthor
   timestamp: string
-  upvotes: number
   comments: number
   shares?: number
   image?: string

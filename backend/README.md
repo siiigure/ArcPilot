@@ -24,7 +24,7 @@ $ source .venv/bin/activate
 ```
 - 编辑器解释器请指向 `backend/.venv/bin/python`。
 - 主要代码位置：
-  - 数据模型与表：`./backend/app/models.py`
+  - 数据模型与表：`./backend/app/models/`
   - API 路由：`./backend/app/api/`
   - CRUD：`./backend/app/crud.py`
 
@@ -127,7 +127,7 @@ $ source .venv/bin/activate
 
 Make sure your editor is using the correct Python virtual environment, with the interpreter at `backend/.venv/bin/python`.
 
-Modify or add SQLModel models for data and SQL tables in `./backend/app/models.py`, API endpoints in `./backend/app/api/`, CRUD (Create, Read, Update, Delete) utils in `./backend/app/crud.py`.
+Modify or add SQLModel models for data and SQL tables in `./backend/app/models/`, API endpoints in `./backend/app/api/`, CRUD (Create, Read, Update, Delete) utils in `./backend/app/crud.py`.
 
 ## VS Code
 
@@ -223,6 +223,22 @@ When the tests are run, a file `htmlcov/index.html` is generated, you can open i
 
 ## Migrations
 
+### Choose One Strategy
+
+Use only one database schema strategy in a project branch:
+
+1. `create_all` strategy (current branch default):
+   - Start service, auto-create tables from `./backend/app/models/` with `SQLModel.metadata.create_all(engine)`.
+   - Good for early-stage iteration and rapid schema changes.
+   - Not ideal for production history tracking.
+
+2. `alembic` strategy:
+   - Generate and apply migration files under `./backend/app/alembic/versions/`.
+   - Good for production-safe, auditable schema evolution.
+   - Requires keeping migration files in sync with model changes.
+
+Current repository also keeps a DB design draft at `./backend/db/schema/design_draft.sql` for reference only.
+
 As during local development your app directory is mounted as a volume inside the container, you can also run the migrations with `alembic` commands inside the container and the migration code will be in your app directory (instead of being only inside the container). So you can add it to your git repository.
 
 Make sure you create a "revision" of your models and that you "upgrade" your database with that revision every time you change them. As this is what will update the tables in your database. Otherwise, your application will have errors.
@@ -233,7 +249,7 @@ Make sure you create a "revision" of your models and that you "upgrade" your dat
 $ docker compose exec backend bash
 ```
 
-* Alembic is already configured to import your SQLModel models from `./backend/app/models.py`.
+* Alembic is already configured to import your SQLModel models from `./backend/app/models/`.
 
 * After changing a model (for example, adding a column), inside the container, create a revision, e.g.:
 

@@ -1,3 +1,4 @@
+#登录、token 鉴权逻辑
 from datetime import timedelta
 from typing import Annotated, Any
 
@@ -37,7 +38,7 @@ def login_access_token(
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     return Token(
         access_token=security.create_access_token(
-            user.id, expires_delta=access_token_expires
+            str(user.public_id), expires_delta=access_token_expires
         )
     )
 
@@ -47,7 +48,19 @@ def test_token(current_user: CurrentUser) -> Any:
     """
     Test access token
     """
-    return current_user
+    return UserPublic(
+        id=current_user.public_id,
+        email=current_user.email,
+        is_active=current_user.is_active,
+        is_superuser=current_user.is_superuser,
+        full_name=current_user.full_name,
+        username=current_user.username,
+        phone_number=current_user.phone_number,
+        display_name=current_user.display_name,
+        avatar_url=current_user.avatar_url,
+        profile_metadata=current_user.profile_metadata,
+        date_joined=current_user.date_joined,
+    )
 
 
 @router.post("/password-recovery/{email}")

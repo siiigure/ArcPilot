@@ -1,7 +1,9 @@
-from sqlmodel import Session, create_engine, select
+#数据库引擎（engine）
+from sqlmodel import Session, SQLModel, create_engine, select
 
 from app import crud
 from app.core.config import settings
+from app.core.migrate_plan_b import run_plan_b_migrations
 from app.models import User, UserCreate
 
 engine = create_engine(str(settings.SQLALCHEMY_DATABASE_URI))
@@ -13,13 +15,9 @@ engine = create_engine(str(settings.SQLALCHEMY_DATABASE_URI))
 
 
 def init_db(session: Session) -> None:
-    # Tables should be created with Alembic migrations
-    # But if you don't want to use migrations, create
-    # the tables un-commenting the next lines
-    # from sqlmodel import SQLModel
-
-    # This works because the models are already imported and registered from app.models
-    # SQLModel.metadata.create_all(engine)
+    # B 方案：不依赖 Alembic，启动时按模型自动建表
+    SQLModel.metadata.create_all(engine)
+    run_plan_b_migrations(engine)
 
     user = session.exec(
         select(User).where(User.email == settings.FIRST_SUPERUSER)

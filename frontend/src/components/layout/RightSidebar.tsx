@@ -1,7 +1,10 @@
 import { Bot, Send, Sparkles, User, X } from "lucide-react"
-import { type FormEvent, useRef, useState } from "react"
+import { type FormEvent, useCallback, useEffect, useRef, useState } from "react"
 
+import { useAiChat } from "@/contexts/ai-chat-context"
 import { useAppShell } from "@/contexts/app-shell-context"
+import { useLocale } from "@/contexts/locale-context"
+import { buildAiMockReply, getMessage, readStoredLocale } from "@/i18n/messages"
 import { streamMockText } from "@/lib/mock-stream"
 
 interface Message {
@@ -12,72 +15,99 @@ interface Message {
 
 export const RightSidebar = () => {
   const { closeAi } = useAppShell()
-  const [messages, setMessages] = useState<Message[]>([
+  const { pending, clearPending } = useAiChat()
+  const { locale, t } = useLocale()
+  const [messages, setMessages] = useState<Message[]>(() => [
     {
       id: "1",
       role: "assistant",
-      content: "Hello! I'm Arcpilot AI. How can I help you today?",
+      content: getMessage(readStoredLocale(), "ai.greeting"),
     },
   ])
   const [input, setInput] = useState("")
   const abortRef = useRef<AbortController | null>(null)
+  const lastInjectId = useRef(0)
+
+  const sendStreamingMessage = useCallback(
+    (content: string) => {
+      if (!content.trim()) return
+
+      abortRef.current?.abort()
+
+      const userMsg: Message = {
+        id: Date.now().toString(),
+        role: "user",
+        content,
+      }
+      const assistantId = (Date.now() + 1).toString()
+      const assistantMsg: Message = {
+        id: assistantId,
+        role: "assistant",
+        content: "",
+      }
+      setMessages((prev) => [...prev, userMsg, assistantMsg])
+
+      const controller = new AbortController()
+      abortRef.current = controller
+
+      const reply = buildAiMockReply(locale, content)
+
+      ;(async () => {
+        try {
+          let acc = ""
+          for await (const chunk of streamMockText(reply, {
+            signal: controller.signal,
+            minDelayMs: 15,
+            maxDelayMs: 45,
+            minChunk: 1,
+            maxChunk: 3,
+          })) {
+            acc += chunk
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.id === assistantId ? { ...m, content: acc } : m,
+              ),
+            )
+          }
+        } catch {
+          // 中止不视为错误
+        } finally {
+          if (abortRef.current === controller) {
+            abortRef.current = null
+          }
+        }
+      })()
+    },
+    [locale],
+  )
+
+  useEffect(() => {
+    if (!pending) return
+    if (pending.id <= lastInjectId.current) return
+    lastInjectId.current = pending.id
+    const text = pending.text
+    clearPending()
+    sendStreamingMessage(text)
+  }, [pending, clearPending, sendStreamingMessage])
+
+  useEffect(() => {
+    setMessages((prev) => {
+      const hasUser = prev.some((m) => m.role === "user")
+      if (hasUser) return prev
+      const first = prev[0]
+      if (first?.id === "1" && first.role === "assistant") {
+        return [{ ...first, content: t("ai.greeting") }, ...prev.slice(1)]
+      }
+      return prev
+    })
+  }, [locale, t])
 
   const handleSend = (e: FormEvent) => {
     e.preventDefault()
-    if (!input.trim()) return
-
-    // 如果有正在进行的流，先中止
-    abortRef.current?.abort()
-
-    const userMsg: Message = {
-      id: Date.now().toString(),
-      role: "user",
-      content: input,
-    }
-    const assistantId = (Date.now() + 1).toString()
-    const assistantMsg: Message = {
-      id: assistantId,
-      role: "assistant",
-      content: "",
-    }
-    setMessages((prev) => [...prev, userMsg, assistantMsg])
+    const text = input.trim()
+    if (!text) return
     setInput("")
-
-    const controller = new AbortController()
-    abortRef.current = controller
-
-    const reply =
-      `这是一个模拟的流式输出示例，用于演示 ArcPilot 的打字机效果。\n\n` +
-      `你的问题是：「${input}」。下面是一些思路：\n` +
-      `1. 明确 GIS 任务目标与数据范围；\n` +
-      `2. 选用合适的数据结构与空间分析工具；\n` +
-      `3. 逐步验证结果并可视化输出。`
-
-    ;(async () => {
-      try {
-        let acc = ""
-        for await (const chunk of streamMockText(reply, {
-          signal: controller.signal,
-          minDelayMs: 15,
-          maxDelayMs: 45,
-          minChunk: 1,
-          maxChunk: 3,
-        })) {
-          acc += chunk
-          setMessages((prev) =>
-            prev.map((m) =>
-              m.id === assistantId ? { ...m, content: acc } : m,
-            ),
-          )
-        }
-      } catch {
-        // 中止不视为错误
-      } finally {
-        if (abortRef.current === controller) {
-          abortRef.current = null
-        }
-      }
-    })()
+    sendStreamingMessage(text)
   }
 
   return (
@@ -92,14 +122,14 @@ export const RightSidebar = () => {
               Arcpilot AI
             </h3>
             <p className="text-[10px] font-medium tracking-wider text-muted-foreground uppercase">
-              Intelligent Assistant
+              {t("ai.subtitle")}
             </p>
           </div>
           <button
             type="button"
             onClick={closeAi}
             className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground xl:hidden"
-            aria-label="关闭 AI 助手"
+            aria-label={t("ai.closeAria")}
           >
             <X className="h-5 w-5" />
           </button>
@@ -145,7 +175,7 @@ export const RightSidebar = () => {
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Type your message..."
+              placeholder={t("ai.inputPlaceholder")}
               className="w-full bg-white dark:bg-black/20 border border-gray-200 dark:border-white/10 rounded-2xl py-3 pl-4 pr-12 text-[12px] focus:outline-none focus:ring-2 focus:ring-[#82ba00]/50 dark:text-white transition-all shadow-inner"
             />
             <button

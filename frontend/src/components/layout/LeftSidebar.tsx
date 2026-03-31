@@ -17,6 +17,8 @@ import {
 import type { ComponentType, ReactNode } from "react"
 
 import { useAppShell } from "@/contexts/app-shell-context"
+import { useCreateComposer } from "@/contexts/create-composer-context"
+import { useLocale } from "@/contexts/locale-context"
 import type { Topic } from "@/types"
 
 interface LeftSidebarProps {
@@ -36,60 +38,87 @@ const IconMap: Record<string, ComponentType<{ className?: string }>> = {
 export const LeftSidebar = ({ topics }: LeftSidebarProps) => {
   const pathname = useRouterState({ select: (s) => s.location.pathname })
   const { closeNav } = useAppShell()
+  const { openComposer } = useCreateComposer()
+  const { t } = useLocale()
 
   return (
     <div className="flex h-full min-h-0 w-full flex-col">
       <div className="modern-card flex h-full min-h-0 flex-col overflow-hidden">
         <div className="flex shrink-0 items-center justify-between border-b border-border px-3 py-2.5 xl:hidden">
-          <span className="text-sm font-semibold">导航</span>
+          <span className="text-sm font-semibold">{t("sidebar.navTitle")}</span>
           <button
             type="button"
             onClick={closeNav}
             className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
-            aria-label="关闭导航"
+            aria-label={t("sidebar.closeNav")}
           >
             <X className="h-5 w-5" />
           </button>
         </div>
-        <div className="no-scrollbar min-h-0 flex-1 space-y-2 overflow-y-auto p-4">
-          <nav className="mb-8 space-y-1">
+        <div className="min-h-0 flex-1 space-y-2 overflow-y-auto overscroll-y-contain p-3 sm:p-4 touch-pan-y custom-scrollbar [scrollbar-gutter:stable]">
+          <nav className="mb-4 space-y-1 sm:mb-8">
             <NavItem
               to="/"
               icon={<Home className="h-5 w-5" />}
-              label="Home"
+              label={t("sidebar.home")}
               active={pathname === "/"}
               onNavigate={closeNav}
             />
             <NavItemButton
               icon={<Rss className="h-5 w-5" />}
-              label="Following"
+              label={t("sidebar.following")}
             />
             <NavItemButton
               icon={<SquarePen className="h-5 w-5" />}
-              label="Answer"
+              label={t("sidebar.answer")}
+              onClick={() => {
+                openComposer("answer")
+                closeNav()
+              }}
             />
             <NavItemButton
               icon={<Bell className="h-5 w-5" />}
-              label="Notifications"
+              label={t("sidebar.notifications")}
             />
           </nav>
 
           <div className="mb-3 px-3">
             <h4 className="text-[10px] font-bold tracking-[0.15em] text-gray-400 uppercase dark:text-gray-500">
-              Spaces
+              {t("sidebar.spaces")}
             </h4>
           </div>
 
           <div className="space-y-1">
             <button
               type="button"
-              className="group flex w-full items-center gap-3 rounded-xl p-2.5 text-sm text-gray-600 transition-all hover:bg-gray-100/50 dark:text-gray-300 dark:hover:bg-white/5"
+              onClick={() => {
+                openComposer("post")
+                closeNav()
+              }}
+              className="group flex w-full items-start gap-2.5 rounded-xl p-2.5 text-left text-sm text-gray-600 transition-all hover:bg-gray-100/50 sm:items-center sm:gap-3 dark:text-gray-300 dark:hover:bg-white/5"
             >
-              <div className="rounded-lg bg-gray-200/50 p-1.5 transition-transform group-hover:scale-110 dark:bg-white/10">
+              <div className="mt-0.5 shrink-0 rounded-lg bg-gray-200/50 p-1.5 transition-transform group-hover:scale-110 sm:mt-0 dark:bg-white/10">
                 <Plus className="h-4 w-4" />
               </div>
-              <span className="font-medium">Create Space</span>
+              <span className="min-w-0 flex-1 font-medium">
+                <span className="block">{t("sidebar.createSpace")}</span>
+                <span className="mt-0.5 block text-[10px] font-normal leading-snug text-muted-foreground">
+                  {t("sidebar.addTopicHint")}
+                </span>
+              </span>
             </button>
+            <Link
+              to="/topics"
+              onClick={closeNav}
+              className="group flex w-full items-center gap-3 rounded-xl p-2.5 text-sm text-gray-600 transition-all hover:bg-gray-100/50 dark:text-gray-300 dark:hover:bg-white/5"
+            >
+              <div className="rounded-lg bg-[#82ba00]/15 p-1.5 text-[#82ba00] transition-transform group-hover:scale-110 dark:bg-[#82ba00]/20">
+                <Rss className="h-4 w-4" />
+              </div>
+              <span className="font-medium transition-colors group-hover:text-[#82ba00]">
+                {t("sidebar.browseTopics")}
+              </span>
+            </Link>
 
             {topics.map((topic) => {
               const Icon = topic.icon ? IconMap[topic.icon] : null
@@ -169,10 +198,19 @@ function NavItem({
   )
 }
 
-function NavItemButton({ icon, label }: { icon: ReactNode; label: string }) {
+function NavItemButton({
+  icon,
+  label,
+  onClick,
+}: {
+  icon: ReactNode
+  label: string
+  onClick?: () => void
+}) {
   return (
     <button
       type="button"
+      onClick={onClick}
       className="group flex w-full items-center gap-3 rounded-xl p-3 text-sm font-semibold text-gray-600 transition-all hover:bg-gray-100/50 dark:text-gray-300 dark:hover:bg-white/5"
     >
       <div className="transition-transform group-hover:scale-110">{icon}</div>

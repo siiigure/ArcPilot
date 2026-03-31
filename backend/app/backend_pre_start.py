@@ -1,3 +1,4 @@
+#服务启动前检查数据库是否可连接
 import logging
 
 from sqlalchemy import Engine

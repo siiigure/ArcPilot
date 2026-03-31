@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { LoadingButton } from "@/components/ui/loading-button"
+import { useLocale } from "@/contexts/locale-context"
 import useAuth from "@/hooks/useAuth"
 import useCustomToast from "@/hooks/useCustomToast"
 import { cn } from "@/lib/utils"
@@ -24,6 +25,7 @@ import { handleError } from "@/utils"
 const formSchema = z.object({
   full_name: z.string().max(30).optional(),
   email: z.email({ message: "Invalid email address" }),
+  bio: z.string().max(160).optional(),
 })
 
 type FormData = z.infer<typeof formSchema>
@@ -31,6 +33,7 @@ type FormData = z.infer<typeof formSchema>
 const UserInformation = () => {
   const queryClient = useQueryClient()
   const { showSuccessToast, showErrorToast } = useCustomToast()
+  const { t } = useLocale()
   const [editMode, setEditMode] = useState(false)
   const { user: currentUser } = useAuth()
 
@@ -41,8 +44,17 @@ const UserInformation = () => {
     defaultValues: {
       full_name: currentUser?.full_name ?? undefined,
       email: currentUser?.email,
+      bio: currentUser?.bio ?? "",
     },
   })
+
+  useEffect(() => {
+    form.reset({
+      full_name: currentUser?.full_name ?? undefined,
+      email: currentUser?.email,
+      bio: currentUser?.bio ?? "",
+    })
+  }, [currentUser, form])
 
   const toggleEditMode = () => {
     setEditMode(!editMode)
@@ -64,12 +76,16 @@ const UserInformation = () => {
   const onSubmit = (data: FormData) => {
     const updateData: UserUpdateMe = {}
 
-    // only include fields that have changed
     if (data.full_name !== currentUser?.full_name) {
       updateData.full_name = data.full_name
     }
     if (data.email !== currentUser?.email) {
       updateData.email = data.email
+    }
+    const trimmedBio = (data.bio ?? "").trim()
+    const prevBio = (currentUser?.bio ?? "").trim()
+    if (trimmedBio !== prevBio) {
+      updateData.bio = trimmedBio || undefined
     }
 
     mutation.mutate(updateData)
@@ -82,7 +98,7 @@ const UserInformation = () => {
 
   return (
     <div className="max-w-md">
-      <h3 className="text-lg font-semibold py-4">User Information</h3>
+      <h3 className="py-4 text-lg font-semibold">User Information</h3>
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
@@ -105,7 +121,7 @@ const UserInformation = () => {
                   <FormLabel>Full name</FormLabel>
                   <p
                     className={cn(
-                      "py-2 truncate max-w-sm",
+                      "max-w-sm truncate py-2",
                       !field.value && "text-muted-foreground",
                     )}
                   >
@@ -131,7 +147,45 @@ const UserInformation = () => {
               ) : (
                 <FormItem>
                   <FormLabel>Email</FormLabel>
-                  <p className="py-2 truncate max-w-sm">{field.value}</p>
+                  <p className="max-w-sm truncate py-2">{field.value}</p>
+                </FormItem>
+              )
+            }
+          />
+
+          <FormField
+            control={form.control}
+            name="bio"
+            render={({ field }) =>
+              editMode ? (
+                <FormItem>
+                  <FormLabel>{t("settings.bioLabel")}</FormLabel>
+                  <FormControl>
+                    <textarea
+                      {...field}
+                      rows={4}
+                      maxLength={160}
+                      placeholder={t("settings.bioPlaceholder")}
+                      className={cn(
+                        "border-input placeholder:text-muted-foreground min-h-[100px] w-full rounded-md border bg-transparent px-3 py-2 text-sm shadow-xs outline-none",
+                        "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
+                        "resize-y",
+                      )}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              ) : (
+                <FormItem>
+                  <FormLabel>{t("settings.bioLabel")}</FormLabel>
+                  <p
+                    className={cn(
+                      "max-w-sm whitespace-pre-wrap py-2 text-sm",
+                      !(field.value ?? "").trim() && "text-muted-foreground",
+                    )}
+                  >
+                    {(field.value ?? "").trim() || "—"}
+                  </p>
                 </FormItem>
               )
             }

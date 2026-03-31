@@ -5,6 +5,7 @@ from starlette.middleware.cors import CORSMiddleware
 
 from app.api.main import api_router
 from app.core.config import settings
+from app.initial_data import init as init_initial_data
 
 
 def custom_generate_unique_id(route: APIRoute) -> str:
@@ -31,3 +32,9 @@ if settings.all_cors_origins:
     )
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
+
+
+@app.on_event("startup")
+def on_startup() -> None:
+    """建表、首用户与种子数据；本地不跑 docker prestart 时也需要执行。"""
+    init_initial_data()
