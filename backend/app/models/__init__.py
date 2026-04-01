@@ -16,6 +16,12 @@ from app.models.user import (
     UserUpdateMe,
 )
 from app.models.ai import AiSession, Message
+from app.models.collab_space import (
+    CollabSpace,
+    CollabSpaceMember,
+    SpaceAsset,
+    SpaceInvite,
+)
 
 __all__ = [
     "SQLModel",
@@ -36,6 +42,10 @@ __all__ = [
     "Reply",
     "AiSession",
     "Message",
+    "CollabSpace",
+    "CollabSpaceMember",
+    "SpaceAsset",
+    "SpaceInvite",
     "ResponseMessage",
     "Token",
     "TokenPayload",

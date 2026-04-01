@@ -3,6 +3,7 @@ import {
   Bell,
   BookOpen,
   Film,
+  FolderKanban,
   Heart,
   Home,
   Laptop,
@@ -80,6 +81,13 @@ export const LeftSidebar = ({ topics }: LeftSidebarProps) => {
               icon={<Bell className="h-5 w-5" />}
               label={t("sidebar.notifications")}
             />
+            <NavItem
+              to="/spaces"
+              icon={<FolderKanban className="h-5 w-5" />}
+              label={t("sidebar.collabSpaces")}
+              active={pathname.startsWith("/spaces")}
+              onNavigate={closeNav}
+            />
           </nav>
 
           <div className="mb-3 px-3">
@@ -89,24 +97,21 @@ export const LeftSidebar = ({ topics }: LeftSidebarProps) => {
           </div>
 
           <div className="space-y-1">
-            <button
-              type="button"
-              onClick={() => {
-                openComposer("post")
-                closeNav()
-              }}
+            <Link
+              to="/spaces"
+              onClick={closeNav}
               className="group flex w-full items-start gap-2.5 rounded-xl p-2.5 text-left text-sm text-gray-600 transition-all hover:bg-gray-100/50 sm:items-center sm:gap-3 dark:text-gray-300 dark:hover:bg-white/5"
             >
               <div className="mt-0.5 shrink-0 rounded-lg bg-gray-200/50 p-1.5 transition-transform group-hover:scale-110 sm:mt-0 dark:bg-white/10">
                 <Plus className="h-4 w-4" />
               </div>
               <span className="min-w-0 flex-1 font-medium">
-                <span className="block">{t("sidebar.createSpace")}</span>
+                <span className="block">{t("collabSpaces.create")}</span>
                 <span className="mt-0.5 block text-[10px] font-normal leading-snug text-muted-foreground">
-                  {t("sidebar.addTopicHint")}
+                  {t("sidebar.collabSpacesHint")}
                 </span>
               </span>
-            </button>
+            </Link>
             <Link
               to="/topics"
               onClick={closeNav}

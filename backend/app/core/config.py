@@ -95,6 +95,9 @@ class Settings(BaseSettings):
     FIRST_SUPERUSER: EmailStr
     FIRST_SUPERUSER_PASSWORD: str
 
+    # 协作空间资源本机落盘根目录（方案 A 本地模拟；对象存储接入后可改为仅元数据）
+    SPACE_ASSETS_LOCAL_ROOT: str = "data/space_assets"
+
     def _check_default_secret(self, var_name: str, value: str | None) -> None:
         if value == "changethis":
             message = (

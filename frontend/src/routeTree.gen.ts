@@ -17,7 +17,9 @@ import { Route as LayoutRouteImport } from './routes/_layout'
 import { Route as LayoutIndexRouteImport } from './routes/_layout/index'
 import { Route as LayoutSettingsRouteImport } from './routes/_layout/settings'
 import { Route as LayoutTopicsIndexRouteImport } from './routes/_layout/topics/index'
+import { Route as LayoutSpacesIndexRouteImport } from './routes/_layout/spaces/index'
 import { Route as LayoutUUserIdRouteImport } from './routes/_layout/u/$userId'
+import { Route as LayoutSpacesSpaceIdRouteImport } from './routes/_layout/spaces/$spaceId'
 import { Route as LayoutPostNewRouteImport } from './routes/_layout/post/new'
 import { Route as LayoutPostPostIdRouteImport } from './routes/_layout/post/$postId'
 
@@ -60,9 +62,19 @@ const LayoutTopicsIndexRoute = LayoutTopicsIndexRouteImport.update({
   path: '/topics/',
   getParentRoute: () => LayoutRoute,
 } as any)
+const LayoutSpacesIndexRoute = LayoutSpacesIndexRouteImport.update({
+  id: '/spaces/',
+  path: '/spaces/',
+  getParentRoute: () => LayoutRoute,
+} as any)
 const LayoutUUserIdRoute = LayoutUUserIdRouteImport.update({
   id: '/u/$userId',
   path: '/u/$userId',
+  getParentRoute: () => LayoutRoute,
+} as any)
+const LayoutSpacesSpaceIdRoute = LayoutSpacesSpaceIdRouteImport.update({
+  id: '/spaces/$spaceId',
+  path: '/spaces/$spaceId',
   getParentRoute: () => LayoutRoute,
 } as any)
 const LayoutPostNewRoute = LayoutPostNewRouteImport.update({
@@ -85,7 +97,9 @@ export interface FileRoutesByFullPath {
   '/settings': typeof LayoutSettingsRoute
   '/post/$postId': typeof LayoutPostPostIdRoute
   '/post/new': typeof LayoutPostNewRoute
+  '/spaces/$spaceId': typeof LayoutSpacesSpaceIdRoute
   '/u/$userId': typeof LayoutUUserIdRoute
+  '/spaces/': typeof LayoutSpacesIndexRoute
   '/topics/': typeof LayoutTopicsIndexRoute
 }
 export interface FileRoutesByTo {
@@ -97,7 +111,9 @@ export interface FileRoutesByTo {
   '/': typeof LayoutIndexRoute
   '/post/$postId': typeof LayoutPostPostIdRoute
   '/post/new': typeof LayoutPostNewRoute
+  '/spaces/$spaceId': typeof LayoutSpacesSpaceIdRoute
   '/u/$userId': typeof LayoutUUserIdRoute
+  '/spaces': typeof LayoutSpacesIndexRoute
   '/topics': typeof LayoutTopicsIndexRoute
 }
 export interface FileRoutesById {
@@ -111,7 +127,9 @@ export interface FileRoutesById {
   '/_layout/': typeof LayoutIndexRoute
   '/_layout/post/$postId': typeof LayoutPostPostIdRoute
   '/_layout/post/new': typeof LayoutPostNewRoute
+  '/_layout/spaces/$spaceId': typeof LayoutSpacesSpaceIdRoute
   '/_layout/u/$userId': typeof LayoutUUserIdRoute
+  '/_layout/spaces/': typeof LayoutSpacesIndexRoute
   '/_layout/topics/': typeof LayoutTopicsIndexRoute
 }
 export interface FileRouteTypes {
@@ -125,7 +143,9 @@ export interface FileRouteTypes {
     | '/settings'
     | '/post/$postId'
     | '/post/new'
+    | '/spaces/$spaceId'
     | '/u/$userId'
+    | '/spaces/'
     | '/topics/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -137,7 +157,9 @@ export interface FileRouteTypes {
     | '/'
     | '/post/$postId'
     | '/post/new'
+    | '/spaces/$spaceId'
     | '/u/$userId'
+    | '/spaces'
     | '/topics'
   id:
     | '__root__'
@@ -150,7 +172,9 @@ export interface FileRouteTypes {
     | '/_layout/'
     | '/_layout/post/$postId'
     | '/_layout/post/new'
+    | '/_layout/spaces/$spaceId'
     | '/_layout/u/$userId'
+    | '/_layout/spaces/'
     | '/_layout/topics/'
   fileRoutesById: FileRoutesById
 }
@@ -220,11 +244,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutTopicsIndexRouteImport
       parentRoute: typeof LayoutRoute
     }
+    '/_layout/spaces/': {
+      id: '/_layout/spaces/'
+      path: '/spaces'
+      fullPath: '/spaces/'
+      preLoaderRoute: typeof LayoutSpacesIndexRouteImport
+      parentRoute: typeof LayoutRoute
+    }
     '/_layout/u/$userId': {
       id: '/_layout/u/$userId'
       path: '/u/$userId'
       fullPath: '/u/$userId'
       preLoaderRoute: typeof LayoutUUserIdRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/spaces/$spaceId': {
+      id: '/_layout/spaces/$spaceId'
+      path: '/spaces/$spaceId'
+      fullPath: '/spaces/$spaceId'
+      preLoaderRoute: typeof LayoutSpacesSpaceIdRouteImport
       parentRoute: typeof LayoutRoute
     }
     '/_layout/post/new': {
@@ -249,7 +287,9 @@ interface LayoutRouteChildren {
   LayoutIndexRoute: typeof LayoutIndexRoute
   LayoutPostPostIdRoute: typeof LayoutPostPostIdRoute
   LayoutPostNewRoute: typeof LayoutPostNewRoute
+  LayoutSpacesSpaceIdRoute: typeof LayoutSpacesSpaceIdRoute
   LayoutUUserIdRoute: typeof LayoutUUserIdRoute
+  LayoutSpacesIndexRoute: typeof LayoutSpacesIndexRoute
   LayoutTopicsIndexRoute: typeof LayoutTopicsIndexRoute
 }
 
@@ -258,7 +298,9 @@ const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutIndexRoute: LayoutIndexRoute,
   LayoutPostPostIdRoute: LayoutPostPostIdRoute,
   LayoutPostNewRoute: LayoutPostNewRoute,
+  LayoutSpacesSpaceIdRoute: LayoutSpacesSpaceIdRoute,
   LayoutUUserIdRoute: LayoutUUserIdRoute,
+  LayoutSpacesIndexRoute: LayoutSpacesIndexRoute,
   LayoutTopicsIndexRoute: LayoutTopicsIndexRoute,
 }
 

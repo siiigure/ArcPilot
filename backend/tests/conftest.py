@@ -7,7 +7,17 @@ from sqlmodel import Session, delete
 from app.core.config import settings
 from app.core.db import engine, init_db
 from app.main import app
-from app.models import AiSession, Message, Post, Tag, User
+from app.models import (
+    AiSession,
+    CollabSpace,
+    CollabSpaceMember,
+    Message,
+    Post,
+    SpaceAsset,
+    SpaceInvite,
+    Tag,
+    User,
+)
 from tests.utils.user import authentication_token_from_email
 from tests.utils.utils import get_superuser_token_headers
 
@@ -17,7 +27,18 @@ def db() -> Generator[Session, None, None]:
     with Session(engine) as session:
         init_db(session)
         yield session
-        for model in (Message, AiSession, Post, Tag, User):
+        # 先删协作空间相关表，避免外键阻塞清理测试用户
+        for model in (
+            SpaceAsset,
+            SpaceInvite,
+            CollabSpaceMember,
+            CollabSpace,
+            Message,
+            AiSession,
+            Post,
+            Tag,
+            User,
+        ):
             session.exec(delete(model))
         session.commit()
 
