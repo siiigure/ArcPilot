@@ -1,4 +1,5 @@
 #数据库引擎（engine）
+from sqlalchemy import text
 from sqlmodel import Session, SQLModel, create_engine, select
 
 from app import crud
@@ -15,8 +16,19 @@ engine = create_engine(str(settings.SQLALCHEMY_DATABASE_URI))
 
 
 def init_db(session: Session) -> None:
-    # B 方案：不依赖 Alembic，启动时按模型自动建表
-    SQLModel.metadata.create_all(engine)
+    # B 方案：不依赖 Alembic，启动时按模型自动建表。
+    # 与 migrate_plan_b 一致：create_all 也会跑 DDL，若库上有长事务/锁，不设 lock_timeout 会无限等待，
+    # 导致 FastAPI 卡在 startup、前端「加载失败」（见 docs/故障复盘日志 2026-03-31）。
+    uri = str(settings.SQLALCHEMY_DATABASE_URI)
+    if uri.startswith("postgresql"):
+        with engine.begin() as conn:
+            conn.execute(text("SET LOCAL lock_timeout = '2000ms'"))
+            # 表多或 IO 慢时略放宽；主要防「等锁」而非卡死单条语句
+            conn.execute(text("SET LOCAL statement_timeout = '90000ms'"))
+            SQLModel.metadata.create_all(bind=conn)
+    else:
+        SQLModel.metadata.create_all(engine)
+
     run_plan_b_migrations(engine)
 
     user = session.exec(

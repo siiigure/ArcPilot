@@ -16,13 +16,13 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useLocale } from "@/contexts/locale-context"
+import { getMessageWith } from "@/i18n/messages"
 import {
   acceptInvite,
   createSpace,
   formatBytes,
   listSpaces,
 } from "@/lib/spaces-api"
-import { getMessageWith } from "@/i18n/messages"
 
 export const Route = createFileRoute("/_layout/spaces/")({
   component: CollabSpacesListPage,
@@ -94,8 +94,8 @@ function CollabSpacesListPage() {
         {t("post.backHome")}
       </Link>
 
-      <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
-        <div>
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
+        <div className="min-w-0">
           <h1 className="text-2xl font-bold tracking-tight">
             {t("collabSpaces.title")}
           </h1>
@@ -105,10 +105,20 @@ function CollabSpacesListPage() {
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button className="gap-1.5">
-              <Plus className="h-4 w-4" />
-              {t("collabSpaces.create")}
-            </Button>
+            <button
+              type="button"
+              className="group flex w-full items-start gap-2.5 rounded-xl p-2.5 text-left text-sm text-gray-600 transition-all hover:bg-gray-100/50 sm:w-auto sm:max-w-sm sm:shrink-0 sm:items-center sm:gap-3 dark:text-gray-300 dark:hover:bg-white/5"
+            >
+              <div className="mt-0.5 shrink-0 rounded-lg bg-gray-200/50 p-1.5 transition-transform group-hover:scale-110 sm:mt-0 dark:bg-white/10">
+                <Plus className="h-4 w-4" />
+              </div>
+              <span className="min-w-0 flex-1 font-medium">
+                <span className="block">{t("collabSpaces.create")}</span>
+                <span className="mt-0.5 block text-[10px] font-normal leading-snug text-muted-foreground">
+                  {t("sidebar.collabSpacesHint")}
+                </span>
+              </span>
+            </button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
@@ -148,7 +158,9 @@ function CollabSpacesListPage() {
                 disabled={!name.trim() || createMutation.isPending}
                 onClick={() => createMutation.mutate()}
               >
-                {createMutation.isPending ? t("collabSpaces.loading") : t("collabSpaces.create")}
+                {createMutation.isPending
+                  ? t("collabSpaces.loading")
+                  : t("collabSpaces.create")}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -160,7 +172,9 @@ function CollabSpacesListPage() {
           {t("collabSpaces.loading")}
         </div>
       ) : listQuery.isError ? (
-        <div className="py-8 text-sm text-red-600">{t("collabSpaces.error")}</div>
+        <div className="py-8 text-sm text-red-600">
+          {t("collabSpaces.error")}
+        </div>
       ) : spaces.length === 0 ? (
         <div className="rounded-xl border border-dashed border-border px-6 py-12 text-center text-sm text-muted-foreground">
           {t("collabSpaces.empty")}
@@ -219,7 +233,9 @@ function CollabSpacesListPage() {
             disabled={!inviteCode.trim() || joinMutation.isPending}
             onClick={() => joinMutation.mutate()}
           >
-            {joinMutation.isPending ? t("collabSpaces.loading") : t("collabSpaces.join")}
+            {joinMutation.isPending
+              ? t("collabSpaces.loading")
+              : t("collabSpaces.join")}
           </Button>
         </div>
       </div>

@@ -3,7 +3,127 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, PostsCreatePostData, PostsCreatePostResponse, PostsListPostsData, PostsListPostsResponse, PostsGetPostDetailData, PostsGetPostDetailResponse, PostsListRepliesData, PostsListRepliesResponse, PostsCreateReplyData, PostsCreateReplyResponse, PrivateCreateUserData, PrivateCreateUserResponse, TagsListTagsResponse, TagsCreateTagData, TagsCreateTagResponse, TagsSuggestTagsData, TagsSuggestTagsResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UsersGetUserProfileData, UsersGetUserProfileResponse, UsersFollowUserData, UsersFollowUserResponse, UsersUnfollowUserData, UsersUnfollowUserResponse, UsersListUserPostsData, UsersListUserPostsResponse, UsersListUserAnsweredPostsData, UsersListUserAnsweredPostsResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse } from './types.gen';
+import type { KnowledgeGetKnowledgeTreeData, KnowledgeGetKnowledgeTreeResponse, KnowledgeGetKnowledgeDocumentData, KnowledgeGetKnowledgeDocumentResponse, KnowledgeSearchKnowledgeData, KnowledgeSearchKnowledgeResponse, KnowledgeCreateKnowledgeDocumentData, KnowledgeCreateKnowledgeDocumentResponse, KnowledgeCreateKnowledgeCategoryData, KnowledgeCreateKnowledgeCategoryResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, PostsCreatePostData, PostsCreatePostResponse, PostsListPostsData, PostsListPostsResponse, PostsGetPostDetailData, PostsGetPostDetailResponse, PostsListRepliesData, PostsListRepliesResponse, PostsCreateReplyData, PostsCreateReplyResponse, PrivateCreateUserData, PrivateCreateUserResponse, SpacesListSpacesResponse, SpacesCreateSpaceData, SpacesCreateSpaceResponse, SpacesGetSpaceDetailData, SpacesGetSpaceDetailResponse, SpacesListSpaceMembersData, SpacesListSpaceMembersResponse, SpacesCreateSpaceInviteData, SpacesCreateSpaceInviteResponse, SpacesCreateSpaceInviteLinkData, SpacesCreateSpaceInviteLinkResponse, SpacesResetSpaceInvitesData, SpacesResetSpaceInvitesResponse, SpacesUpdateSpaceMemberRoleData, SpacesUpdateSpaceMemberRoleResponse, SpacesRemoveSpaceMemberData, SpacesRemoveSpaceMemberResponse, SpacesUploadStagedAssetData, SpacesUploadStagedAssetResponse, SpacesPresignSpaceAssetUploadData, SpacesPresignSpaceAssetUploadResponse, SpacesCompleteSpaceAssetUploadData, SpacesCompleteSpaceAssetUploadResponse, SpacesListSpaceAssetsData, SpacesListSpaceAssetsResponse, SpacesDownloadSpaceAssetData, SpacesDownloadSpaceAssetResponse, SpacesDeleteSpaceAssetData, SpacesDeleteSpaceAssetResponse, SpacesAcceptSpaceInviteData, SpacesAcceptSpaceInviteResponse, TagsListTagsNavResponse, TagsListTagsData, TagsListTagsResponse, TagsCreateTagData, TagsCreateTagResponse, TagsSuggestTagsData, TagsSuggestTagsResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UsersGetUserProfileData, UsersGetUserProfileResponse, UsersFollowUserData, UsersFollowUserResponse, UsersUnfollowUserData, UsersUnfollowUserResponse, UsersListUserPostsData, UsersListUserPostsResponse, UsersListUserAnsweredPostsData, UsersListUserAnsweredPostsResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse } from './types.gen';
+
+export class KnowledgeService {
+    /**
+     * Get Knowledge Tree
+     * 返回当前空间下分类与文档列表（成员可读）。
+     * @param data The data for the request.
+     * @param data.spaceId
+     * @returns WikiTreeResponse Successful Response
+     * @throws ApiError
+     */
+    public static getKnowledgeTree(data: KnowledgeGetKnowledgeTreeData): CancelablePromise<KnowledgeGetKnowledgeTreeResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/spaces/{space_id}/knowledge/tree',
+            path: {
+                space_id: data.spaceId
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Get Knowledge Document
+     * 按 slug 读取单篇文档：元数据 + 磁盘正文（成员可读）。
+     * @param data The data for the request.
+     * @param data.spaceId
+     * @param data.slug
+     * @returns WikiDocumentDetailResponse Successful Response
+     * @throws ApiError
+     */
+    public static getKnowledgeDocument(data: KnowledgeGetKnowledgeDocumentData): CancelablePromise<KnowledgeGetKnowledgeDocumentResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/spaces/{space_id}/knowledge/docs/{slug}',
+            path: {
+                space_id: data.spaceId,
+                slug: data.slug
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Search Knowledge
+     * 简单关键词检索（P0）：在标题与 body_excerpt 上做 ILIKE。
+     * 后续可替换为 Meilisearch / FTS，接口形态保持不变。
+     * @param data The data for the request.
+     * @param data.spaceId
+     * @param data.q
+     * @returns WikiSearchResponse Successful Response
+     * @throws ApiError
+     */
+    public static searchKnowledge(data: KnowledgeSearchKnowledgeData): CancelablePromise<KnowledgeSearchKnowledgeResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/spaces/{space_id}/knowledge/search',
+            path: {
+                space_id: data.spaceId
+            },
+            query: {
+                q: data.q
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Create Knowledge Document
+     * 新建文档：owner/editor；写入 DB + 本地存储。
+     * @param data The data for the request.
+     * @param data.spaceId
+     * @param data.requestBody
+     * @returns WikiDocumentPublic Successful Response
+     * @throws ApiError
+     */
+    public static createKnowledgeDocument(data: KnowledgeCreateKnowledgeDocumentData): CancelablePromise<KnowledgeCreateKnowledgeDocumentResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/spaces/{space_id}/knowledge/docs',
+            path: {
+                space_id: data.spaceId
+            },
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Create Knowledge Category
+     * 新建分类（可选功能）：owner/editor。
+     * @param data The data for the request.
+     * @param data.spaceId
+     * @param data.requestBody
+     * @returns WikiCategoryPublic Successful Response
+     * @throws ApiError
+     */
+    public static createKnowledgeCategory(data: KnowledgeCreateKnowledgeCategoryData): CancelablePromise<KnowledgeCreateKnowledgeCategoryResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/spaces/{space_id}/knowledge/categories',
+            path: {
+                space_id: data.spaceId
+            },
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+}
 
 export class LoginService {
     /**
@@ -131,13 +251,15 @@ export class PostsService {
      * List Posts
      * 获取帖子列表（首页 Feed）。
      *
-     * 字段契约（MVP）：
-     * - `content`：Post.body
-     * - `timestamp`：Post.created_at（ISO 字符串）
-     * - `comments`：该帖 replies 条数（过滤 is_deleted=false）
+     * 可选 `tag_id`（推荐）或 `tag_slug` 筛选关联了该标签的帖子；若同时传，以 `tag_id` 为准
+     * （`tag_slug` 仅当未传 `tag_id` 时生效）。标签不存在时 404。
+     *
+     * 每条帖子返回 `tags`（批量查询，避免 N+1）。
      * @param data The data for the request.
      * @param data.skip
      * @param data.limit
+     * @param data.tagId
+     * @param data.tagSlug
      * @returns PostPublic Successful Response
      * @throws ApiError
      */
@@ -147,7 +269,9 @@ export class PostsService {
             url: '/api/v1/posts/',
             query: {
                 skip: data.skip,
-                limit: data.limit
+                limit: data.limit,
+                tag_id: data.tagId,
+                tag_slug: data.tagSlug
             },
             errors: {
                 422: 'Validation Error'
@@ -250,20 +374,395 @@ export class PrivateService {
     }
 }
 
+export class SpacesService {
+    /**
+     * List Spaces
+     * @returns SpacesPublic Successful Response
+     * @throws ApiError
+     */
+    public static listSpaces(): CancelablePromise<SpacesListSpacesResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/spaces/'
+        });
+    }
+    
+    /**
+     * Create Space
+     * @param data The data for the request.
+     * @param data.requestBody
+     * @returns SpacePublic Successful Response
+     * @throws ApiError
+     */
+    public static createSpace(data: SpacesCreateSpaceData): CancelablePromise<SpacesCreateSpaceResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/spaces/',
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Get Space Detail
+     * @param data The data for the request.
+     * @param data.spaceId
+     * @returns SpacePublic Successful Response
+     * @throws ApiError
+     */
+    public static getSpaceDetail(data: SpacesGetSpaceDetailData): CancelablePromise<SpacesGetSpaceDetailResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/spaces/{space_id}',
+            path: {
+                space_id: data.spaceId
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * List Space Members
+     * @param data The data for the request.
+     * @param data.spaceId
+     * @returns SpaceMembersPublic Successful Response
+     * @throws ApiError
+     */
+    public static listSpaceMembers(data: SpacesListSpaceMembersData): CancelablePromise<SpacesListSpaceMembersResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/spaces/{space_id}/members',
+            path: {
+                space_id: data.spaceId
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Create Space Invite
+     * @param data The data for the request.
+     * @param data.spaceId
+     * @param data.requestBody
+     * @returns SpaceInvitePublic Successful Response
+     * @throws ApiError
+     */
+    public static createSpaceInvite(data: SpacesCreateSpaceInviteData): CancelablePromise<SpacesCreateSpaceInviteResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/spaces/{space_id}/invite',
+            path: {
+                space_id: data.spaceId
+            },
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Create Space Invite Link
+     * 生成无状态邀请令牌（不写 space_invites 表）；适合高频分享链接。
+     * @param data The data for the request.
+     * @param data.spaceId
+     * @param data.requestBody
+     * @returns SpaceInvitePublic Successful Response
+     * @throws ApiError
+     */
+    public static createSpaceInviteLink(data: SpacesCreateSpaceInviteLinkData): CancelablePromise<SpacesCreateSpaceInviteLinkResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/spaces/{space_id}/invite/link',
+            path: {
+                space_id: data.spaceId
+            },
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Reset Space Invites
+     * Owner：递增 invite_version（使旧无状态令牌失效），并将本空间 pending 表邀请置为 cancelled。
+     * @param data The data for the request.
+     * @param data.spaceId
+     * @returns ResponseMessage Successful Response
+     * @throws ApiError
+     */
+    public static resetSpaceInvites(data: SpacesResetSpaceInvitesData): CancelablePromise<SpacesResetSpaceInvitesResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/spaces/{space_id}/invite/reset',
+            path: {
+                space_id: data.spaceId
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Update Space Member Role
+     * Owner 修改空间成员角色（仅 editor/viewer）。
+     * @param data The data for the request.
+     * @param data.spaceId
+     * @param data.memberUserId
+     * @param data.requestBody
+     * @returns ResponseMessage Successful Response
+     * @throws ApiError
+     */
+    public static updateSpaceMemberRole(data: SpacesUpdateSpaceMemberRoleData): CancelablePromise<SpacesUpdateSpaceMemberRoleResponse> {
+        return __request(OpenAPI, {
+            method: 'PATCH',
+            url: '/api/v1/spaces/{space_id}/members/{member_user_id}',
+            path: {
+                space_id: data.spaceId,
+                member_user_id: data.memberUserId
+            },
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Remove Space Member
+     * Owner 移除空间成员。
+     * @param data The data for the request.
+     * @param data.spaceId
+     * @param data.memberUserId
+     * @returns ResponseMessage Successful Response
+     * @throws ApiError
+     */
+    public static removeSpaceMember(data: SpacesRemoveSpaceMemberData): CancelablePromise<SpacesRemoveSpaceMemberResponse> {
+        return __request(OpenAPI, {
+            method: 'DELETE',
+            url: '/api/v1/spaces/{space_id}/members/{member_user_id}',
+            path: {
+                space_id: data.spaceId,
+                member_user_id: data.memberUserId
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Upload Staged Asset
+     * 直传落盘（模拟对象存储 PUT）。
+     *
+     * 注意：此路由使用 JWT 鉴权，不依赖登录 Bearer；请勿在日志中打印完整 token。
+     * @param data The data for the request.
+     * @param data.token
+     * @returns unknown Successful Response
+     * @throws ApiError
+     */
+    public static uploadStagedAsset(data: SpacesUploadStagedAssetData): CancelablePromise<SpacesUploadStagedAssetResponse> {
+        return __request(OpenAPI, {
+            method: 'PUT',
+            url: '/api/v1/spaces/assets/upload/{token}',
+            path: {
+                token: data.token
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Presign Space Asset Upload
+     * 为指定空间生成上传预检信息（配额 + 版本号 + 上传 JWT）。
+     * @param data The data for the request.
+     * @param data.spaceId
+     * @param data.requestBody
+     * @returns AssetPresignResponse Successful Response
+     * @throws ApiError
+     */
+    public static presignSpaceAssetUpload(data: SpacesPresignSpaceAssetUploadData): CancelablePromise<SpacesPresignSpaceAssetUploadResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/spaces/{space_id}/assets/presign',
+            path: {
+                space_id: data.spaceId
+            },
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Complete Space Asset Upload
+     * 上传完成后写入数据库并扣减配额（服务端二次校验）。
+     * @param data The data for the request.
+     * @param data.spaceId
+     * @param data.requestBody
+     * @returns AssetPublic Successful Response
+     * @throws ApiError
+     */
+    public static completeSpaceAssetUpload(data: SpacesCompleteSpaceAssetUploadData): CancelablePromise<SpacesCompleteSpaceAssetUploadResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/spaces/{space_id}/assets/complete',
+            path: {
+                space_id: data.spaceId
+            },
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * List Space Assets
+     * 列出空间资源；默认仅返回每个 logical_name 的最新版本。
+     * @param data The data for the request.
+     * @param data.spaceId
+     * @param data.allVersions
+     * @returns AssetsPublic Successful Response
+     * @throws ApiError
+     */
+    public static listSpaceAssets(data: SpacesListSpaceAssetsData): CancelablePromise<SpacesListSpaceAssetsResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/spaces/{space_id}/assets',
+            path: {
+                space_id: data.spaceId
+            },
+            query: {
+                all_versions: data.allVersions
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Download Space Asset
+     * 下载/预览资源（本机文件返回）。
+     * @param data The data for the request.
+     * @param data.spaceId
+     * @param data.assetId
+     * @returns unknown Successful Response
+     * @throws ApiError
+     */
+    public static downloadSpaceAsset(data: SpacesDownloadSpaceAssetData): CancelablePromise<SpacesDownloadSpaceAssetResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/spaces/{space_id}/assets/{asset_id}',
+            path: {
+                space_id: data.spaceId,
+                asset_id: data.assetId
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Delete Space Asset
+     * 软删除资源并尽量物理删除文件，扣减配额。
+     * @param data The data for the request.
+     * @param data.spaceId
+     * @param data.assetId
+     * @returns string Successful Response
+     * @throws ApiError
+     */
+    public static deleteSpaceAsset(data: SpacesDeleteSpaceAssetData): CancelablePromise<SpacesDeleteSpaceAssetResponse> {
+        return __request(OpenAPI, {
+            method: 'DELETE',
+            url: '/api/v1/spaces/{space_id}/assets/{asset_id}',
+            path: {
+                space_id: data.spaceId,
+                asset_id: data.assetId
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Accept Space Invite
+     * @param data The data for the request.
+     * @param data.requestBody
+     * @returns AcceptInviteResponse Successful Response
+     * @throws ApiError
+     */
+    public static acceptSpaceInvite(data: SpacesAcceptSpaceInviteData): CancelablePromise<SpacesAcceptSpaceInviteResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/invites/accept',
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+}
+
 export class TagsService {
     /**
-     * List Tags
-     * 获取 Tag 列表（用于发帖页 Tag 多选）。
-     *
-     * 说明：
-     * - 读取接口按 `auth_required` 处理（前端 layout 已做登录保护，不影响闭环）。
+     * List Tags Nav
+     * 左侧导航短列表：配置了 NAV_TAG_PUBLIC_IDS 时按该顺序返回；
+     * 否则按 post_tags 关联帖子数降序返回热门话题（TAG_NAV_LIMIT 条）。
      * @returns TagsPublic Successful Response
      * @throws ApiError
      */
-    public static listTags(): CancelablePromise<TagsListTagsResponse> {
+    public static listTagsNav(): CancelablePromise<TagsListTagsNavResponse> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/api/v1/tags/'
+            url: '/api/v1/tags/nav'
+        });
+    }
+    
+    /**
+     * List Tags
+     * 获取 Tag 列表。
+     *
+     * - 不传 `limit`：返回全部标签（兼容发帖页、composer 全选）。
+     * - 传 `limit`：按 `slug` 升序分页；`after_slug` 为上一页最后一条的 `slug`（exclusive）。
+     * @param data The data for the request.
+     * @param data.afterSlug 游标：仅返回 slug 大于该值的标签（按 slug 升序，字典序）
+     * @param data.limit 分页条数；不传则返回全量（发帖多选等场景）
+     * @returns TagsPublic Successful Response
+     * @throws ApiError
+     */
+    public static listTags(data: TagsListTagsData = {}): CancelablePromise<TagsListTagsResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/tags/',
+            query: {
+                after_slug: data.afterSlug,
+                limit: data.limit
+            },
+            errors: {
+                422: 'Validation Error'
+            }
         });
     }
     

@@ -22,12 +22,12 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import useAuth from "@/hooks/useAuth"
 import { useLocale } from "@/contexts/locale-context"
+import useAuth from "@/hooks/useAuth"
 import { getMessageWith } from "@/i18n/messages"
 import {
   completeAssetUpload,
-  createSpaceInvite,
+  createSpaceInviteLink,
   deleteSpaceAsset,
   downloadSpaceAsset,
   formatBytes,
@@ -71,7 +71,7 @@ function CollabSpaceDetailPage() {
 
   const inviteMutation = useMutation({
     mutationFn: () =>
-      createSpaceInvite(spaceId, { role: inviteRole, expires_in_days: 7 }),
+      createSpaceInviteLink(spaceId, { role: inviteRole, expires_in_days: 7 }),
     onSuccess: (data) => {
       toast.success(`${t("collabSpaces.inviteCode")}: ${data.invite_code}`)
       void navigator.clipboard.writeText(data.invite_code)
@@ -148,7 +148,8 @@ function CollabSpaceDetailPage() {
   })
 
   const removeMemberMutation = useMutation({
-    mutationFn: (memberUserId: string) => removeSpaceMember(spaceId, memberUserId),
+    mutationFn: (memberUserId: string) =>
+      removeSpaceMember(spaceId, memberUserId),
     onSuccess: () => {
       toast.success("已移除成员")
       void queryClient.invalidateQueries({
@@ -200,7 +201,9 @@ function CollabSpaceDetailPage() {
       <header className="mb-6">
         <h1 className="text-2xl font-bold tracking-tight">{space.name}</h1>
         {space.description ? (
-          <p className="mt-1 text-sm text-muted-foreground">{space.description}</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {space.description}
+          </p>
         ) : null}
         <p className="mt-2 text-sm text-muted-foreground">
           {getMessageWith(locale, "collabSpaces.usedQuota", {
@@ -213,10 +216,16 @@ function CollabSpaceDetailPage() {
 
       <Tabs defaultValue="assets" className="w-full">
         <TabsList className="mb-4">
-          <TabsTrigger value="assets">{t("collabSpaces.tabAssets")}</TabsTrigger>
-          <TabsTrigger value="members">{t("collabSpaces.tabMembers")}</TabsTrigger>
+          <TabsTrigger value="assets">
+            {t("collabSpaces.tabAssets")}
+          </TabsTrigger>
+          <TabsTrigger value="members">
+            {t("collabSpaces.tabMembers")}
+          </TabsTrigger>
           {canInvite ? (
-            <TabsTrigger value="invite">{t("collabSpaces.tabInvite")}</TabsTrigger>
+            <TabsTrigger value="invite">
+              {t("collabSpaces.tabInvite")}
+            </TabsTrigger>
           ) : null}
         </TabsList>
 
@@ -269,7 +278,9 @@ function CollabSpaceDetailPage() {
                     (role === "editor" && user?.id === a.uploader_id)
                   return (
                     <TableRow key={a.id}>
-                      <TableCell className="font-medium">{a.logical_name}</TableCell>
+                      <TableCell className="font-medium">
+                        {a.logical_name}
+                      </TableCell>
                       <TableCell>{a.version}</TableCell>
                       <TableCell>{a.type}</TableCell>
                       <TableCell className="text-right">
@@ -283,7 +294,11 @@ function CollabSpaceDetailPage() {
                           className="mr-1"
                           aria-label="download"
                           onClick={() =>
-                            void downloadSpaceAsset(spaceId, a.id, a.logical_name)
+                            void downloadSpaceAsset(
+                              spaceId,
+                              a.id,
+                              a.logical_name,
+                            )
                           }
                         >
                           <Download className="h-4 w-4" />
@@ -328,8 +343,12 @@ function CollabSpaceDetailPage() {
                   className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border px-3 py-2 text-sm"
                 >
                   <div className="min-w-0 flex-1">
-                    <span className="block truncate">{m.full_name || m.email}</span>
-                    <span className="text-xs text-muted-foreground">{m.role}</span>
+                    <span className="block truncate">
+                      {m.full_name || m.email}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {m.role}
+                    </span>
                   </div>
                   {canInvite && m.role !== "owner" ? (
                     <div className="flex items-center gap-2">

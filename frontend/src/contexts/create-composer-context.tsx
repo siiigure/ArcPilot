@@ -1,4 +1,10 @@
-import { createContext, useCallback, useContext, useMemo, useState } from "react"
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+} from "react"
 
 export type ComposerMode = "ask" | "answer" | "post"
 
@@ -14,7 +20,9 @@ type CreateComposerContextValue = {
   setMode: (mode: ComposerMode) => void
 }
 
-const CreateComposerContext = createContext<CreateComposerContextValue | null>(null)
+const CreateComposerContext = createContext<CreateComposerContextValue | null>(
+  null,
+)
 
 export function CreateComposerProvider({
   children,
@@ -44,7 +52,7 @@ export function CreateComposerProvider({
 
   const value = useMemo<CreateComposerContextValue>(
     () => ({ state, openComposer, closeComposer, setMode }),
-    [state, openComposer, closeComposer, setMode]
+    [state, openComposer, closeComposer, setMode],
   )
 
   return (
@@ -61,4 +69,3 @@ export function useCreateComposer() {
   }
   return ctx
 }
-

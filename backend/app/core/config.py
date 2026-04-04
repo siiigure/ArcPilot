@@ -1,5 +1,6 @@
-#数据库连接配置（SQLALCHEMY_DATABASE_URI）
+# 数据库连接配置（SQLALCHEMY_DATABASE_URI）
 import secrets
+import uuid
 import warnings
 from typing import Annotated, Any, Literal
 
@@ -97,6 +98,25 @@ class Settings(BaseSettings):
 
     # 协作空间资源本机落盘根目录（方案 A 本地模拟；对象存储接入后可改为仅元数据）
     SPACE_ASSETS_LOCAL_ROOT: str = "data/space_assets"
+
+    # 协作空间无状态邀请 HMAC；未设置时回退为与 SECRET_KEY 派生的子密钥（见 collab_invite_token）
+    COLLAB_INVITE_HMAC_SECRET: str | None = None
+
+    # 左侧导航话题：逗号分隔的 Tag.public_id（UUID）。非空时 GET /tags/nav 仅返回这些标签（按列表顺序）。
+    # 为空时按 post_tags 关联数降序取热门，条数见 TAG_NAV_LIMIT。
+    NAV_TAG_PUBLIC_IDS: str = ""
+    TAG_NAV_LIMIT: int = 10
+
+    def nav_tag_public_ids(self) -> list[uuid.UUID]:
+        raw = self.NAV_TAG_PUBLIC_IDS.strip()
+        if not raw:
+            return []
+        out: list[uuid.UUID] = []
+        for part in raw.split(","):
+            p = part.strip()
+            if p:
+                out.append(uuid.UUID(p))
+        return out
 
     def _check_default_secret(self, var_name: str, value: str | None) -> None:
         if value == "changethis":

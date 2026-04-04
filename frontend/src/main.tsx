@@ -5,6 +5,7 @@ import {
   QueryClientProvider,
 } from "@tanstack/react-query"
 import { createRouter, RouterProvider } from "@tanstack/react-router"
+import axios from "axios"
 import { StrictMode } from "react"
 import ReactDOM from "react-dom/client"
 import { ApiError, OpenAPI } from "./client"
@@ -14,7 +15,17 @@ import { LocaleProvider } from "./contexts/locale-context"
 import "./index.css"
 import { routeTree } from "./routeTree.gen"
 
-OpenAPI.BASE = import.meta.env.VITE_API_URL
+// 无超时则后端若未就绪/卡在启动，登录会一直 pending；给明确上限并触发 onError 结束 loading
+axios.defaults.timeout = 90_000
+
+// 开发：见 frontend/.env 走 Vite 代理；生产：可留空用同源 window.location.origin
+const envBase = import.meta.env.VITE_API_URL
+const trimmed =
+  typeof envBase === "string" && envBase.trim() !== ""
+    ? envBase.replace(/\/$/, "")
+    : ""
+OpenAPI.BASE =
+  trimmed || (typeof window !== "undefined" ? window.location.origin : "")
 OpenAPI.TOKEN = async () => {
   return localStorage.getItem("access_token") || ""
 }

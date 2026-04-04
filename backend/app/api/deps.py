@@ -56,7 +56,11 @@ def get_current_user(session: SessionDep, token: TokenDep) -> User:
         )
     user = session.exec(select(User).where(User.public_id == user_public_id)).first()
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        # 与「路由不存在」区分：旧 token / 换库后用户已删时应用 401，便于前端清 token 重登
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials",
+        )
     if not user.is_active:
         raise HTTPException(status_code=400, detail="Inactive user")
     return user

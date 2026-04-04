@@ -1,30 +1,32 @@
-import { Link, useRouterState } from "@tanstack/react-router"
+import { useQuery } from "@tanstack/react-query"
+import { Link, useRouterState, useSearch } from "@tanstack/react-router"
 import {
-  Bell,
   BookOpen,
+  ChevronLeft,
+  ChevronRight,
   Film,
   FolderKanban,
   Heart,
   Home,
   Laptop,
+  Library,
   Music,
-  Plus,
   Rss,
-  SquarePen,
   Utensils,
   UtensilsCrossed,
   X,
 } from "lucide-react"
 import type { ComponentType, ReactNode } from "react"
 
+import { TagsService } from "@/client"
+import {
+  topicSlugToColorClass,
+  topicSlugToIconKey,
+} from "@/components/layout/topic-nav-styles"
 import { useAppShell } from "@/contexts/app-shell-context"
-import { useCreateComposer } from "@/contexts/create-composer-context"
+import { useFluidLayout } from "@/contexts/fluid-layout-context"
 import { useLocale } from "@/contexts/locale-context"
-import type { Topic } from "@/types"
-
-interface LeftSidebarProps {
-  topics: Topic[]
-}
+import { cn } from "@/lib/utils"
 
 const IconMap: Record<string, ComponentType<{ className?: string }>> = {
   Utensils,
@@ -36,50 +38,91 @@ const IconMap: Record<string, ComponentType<{ className?: string }>> = {
   Heart,
 }
 
-export const LeftSidebar = ({ topics }: LeftSidebarProps) => {
+type LeftSidebarProps = {
+  /** AI 主导时收窄为图标栏 */
+  compactNav?: boolean
+}
+
+export const LeftSidebar = ({ compactNav = false }: LeftSidebarProps) => {
   const pathname = useRouterState({ select: (s) => s.location.pathname })
+  const looseSearch = useSearch({ strict: false })
+  const feedTagId =
+    pathname === "/" && typeof looseSearch.tagId === "string"
+      ? looseSearch.tagId
+      : undefined
   const { closeNav } = useAppShell()
-  const { openComposer } = useCreateComposer()
   const { t } = useLocale()
+  const fluid = useFluidLayout()
+
+  const { data: navRes } = useQuery({
+    queryKey: ["tagsNav"],
+    queryFn: () => TagsService.listTagsNav(),
+  })
+  const navTags = navRes?.data ?? []
+
+  const homeActive = pathname === "/" && !feedTagId
 
   return (
     <div className="flex h-full min-h-0 w-full flex-col">
-      <div className="modern-card flex h-full min-h-0 flex-col overflow-hidden">
-        <div className="flex shrink-0 items-center justify-between border-b border-border px-3 py-2.5 xl:hidden">
+      <div className="shell-panel flex h-full min-h-0 flex-col overflow-hidden">
+        <div
+          className={cn(
+            "hidden shrink-0 items-center border-b border-border lg:flex",
+            compactNav ? "justify-center py-1.5" : "justify-end px-2 py-1.5",
+          )}
+        >
+          <button
+            type="button"
+            onClick={() => fluid?.toggleNavRail()}
+            className="inline-flex h-9 w-9 items-center justify-center rounded-none text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+            title={
+              compactNav ? t("sidebar.expandRail") : t("sidebar.collapseRail")
+            }
+            aria-label={
+              compactNav ? t("sidebar.expandRail") : t("sidebar.collapseRail")
+            }
+          >
+            {compactNav ? (
+              <ChevronRight className="h-5 w-5" />
+            ) : (
+              <ChevronLeft className="h-5 w-5" />
+            )}
+          </button>
+        </div>
+        <div className="flex shrink-0 items-center justify-between border-b border-border px-3 py-2.5 lg:hidden">
           <span className="text-sm font-semibold">{t("sidebar.navTitle")}</span>
           <button
             type="button"
             onClick={closeNav}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-none text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
             aria-label={t("sidebar.closeNav")}
           >
             <X className="h-5 w-5" />
           </button>
         </div>
-        <div className="min-h-0 flex-1 space-y-2 overflow-y-auto overscroll-y-contain p-3 sm:p-4 touch-pan-y custom-scrollbar [scrollbar-gutter:stable]">
-          <nav className="mb-4 space-y-1 sm:mb-8">
+        <div
+          className={cn(
+            "min-h-0 flex-1 space-y-2 overflow-y-auto overscroll-y-contain touch-pan-y custom-scrollbar [scrollbar-gutter:stable]",
+            compactNav ? "p-2" : "p-3 sm:p-4",
+          )}
+        >
+          <nav className={cn("mb-4 space-y-1", !compactNav && "sm:mb-8")}>
             <NavItem
               to="/"
+              search={{}}
               icon={<Home className="h-5 w-5" />}
               label={t("sidebar.home")}
-              active={pathname === "/"}
+              active={homeActive}
               onNavigate={closeNav}
+              compact={compactNav}
             />
-            <NavItemButton
-              icon={<Rss className="h-5 w-5" />}
-              label={t("sidebar.following")}
-            />
-            <NavItemButton
-              icon={<SquarePen className="h-5 w-5" />}
-              label={t("sidebar.answer")}
-              onClick={() => {
-                openComposer("answer")
-                closeNav()
-              }}
-            />
-            <NavItemButton
-              icon={<Bell className="h-5 w-5" />}
-              label={t("sidebar.notifications")}
+            <NavItem
+              to="/knowledge"
+              icon={<Library className="h-5 w-5" />}
+              label={t("sidebar.knowledgeBase")}
+              active={pathname.startsWith("/knowledge")}
+              onNavigate={closeNav}
+              compact={compactNav}
             />
             <NavItem
               to="/spaces"
@@ -87,84 +130,95 @@ export const LeftSidebar = ({ topics }: LeftSidebarProps) => {
               label={t("sidebar.collabSpaces")}
               active={pathname.startsWith("/spaces")}
               onNavigate={closeNav}
+              compact={compactNav}
             />
           </nav>
 
-          <div className="mb-3 px-3">
-            <h4 className="text-[10px] font-bold tracking-[0.15em] text-gray-400 uppercase dark:text-gray-500">
-              {t("sidebar.spaces")}
-            </h4>
-          </div>
+          {!compactNav ? (
+            <div className="mb-3 px-3">
+              <h4 className="text-[10px] font-bold tracking-[0.15em] text-gray-400 uppercase dark:text-gray-500">
+                {t("sidebar.spaces")}
+              </h4>
+            </div>
+          ) : null}
 
           <div className="space-y-1">
             <Link
-              to="/spaces"
-              onClick={closeNav}
-              className="group flex w-full items-start gap-2.5 rounded-xl p-2.5 text-left text-sm text-gray-600 transition-all hover:bg-gray-100/50 sm:items-center sm:gap-3 dark:text-gray-300 dark:hover:bg-white/5"
-            >
-              <div className="mt-0.5 shrink-0 rounded-lg bg-gray-200/50 p-1.5 transition-transform group-hover:scale-110 sm:mt-0 dark:bg-white/10">
-                <Plus className="h-4 w-4" />
-              </div>
-              <span className="min-w-0 flex-1 font-medium">
-                <span className="block">{t("collabSpaces.create")}</span>
-                <span className="mt-0.5 block text-[10px] font-normal leading-snug text-muted-foreground">
-                  {t("sidebar.collabSpacesHint")}
-                </span>
-              </span>
-            </Link>
-            <Link
               to="/topics"
               onClick={closeNav}
-              className="group flex w-full items-center gap-3 rounded-xl p-2.5 text-sm text-gray-600 transition-all hover:bg-gray-100/50 dark:text-gray-300 dark:hover:bg-white/5"
+              title={t("sidebar.browseTopics")}
+              className={cn(
+                "group flex w-full items-center text-sm transition-all hover:bg-gray-100/50 dark:hover:bg-white/5 rounded-none",
+                compactNav ? "justify-center p-2.5" : "gap-3 p-2.5",
+                pathname.startsWith("/topics")
+                  ? "bg-[#82ba00]/10 text-[#82ba00]"
+                  : "text-gray-600 dark:text-gray-300",
+              )}
             >
-              <div className="rounded-lg bg-[#82ba00]/15 p-1.5 text-[#82ba00] transition-transform group-hover:scale-110 dark:bg-[#82ba00]/20">
+              <div className="bg-[#82ba00]/15 p-1.5 text-[#82ba00] transition-transform group-hover:scale-110 dark:bg-[#82ba00]/20 rounded-none">
                 <Rss className="h-4 w-4" />
               </div>
-              <span className="font-medium transition-colors group-hover:text-[#82ba00]">
-                {t("sidebar.browseTopics")}
-              </span>
+              {!compactNav ? (
+                <span className="font-medium transition-colors group-hover:text-[#82ba00]">
+                  {t("sidebar.browseTopics")}
+                </span>
+              ) : null}
             </Link>
 
-            {topics.map((topic) => {
-              const Icon = topic.icon ? IconMap[topic.icon] : null
+            {navTags.map((tag) => {
+              const iconKey = topicSlugToIconKey(tag.slug)
+              const Icon = IconMap[iconKey] ?? BookOpen
+              const colorClass = topicSlugToColorClass(tag.slug)
+              const topicActive = pathname === "/" && feedTagId === tag.id
               return (
                 <Link
-                  key={topic.id}
+                  key={tag.id}
                   to="/"
+                  search={{ tagId: tag.id, tagName: tag.name }}
                   onClick={closeNav}
-                  className="group flex items-center gap-3 rounded-xl p-2.5 text-sm text-gray-600 transition-all hover:bg-gray-100/50 dark:text-gray-300 dark:hover:bg-white/5"
+                  title={tag.name}
+                  className={cn(
+                    "group flex w-full items-center text-sm transition-all hover:bg-gray-100/50 dark:hover:bg-white/5 rounded-none",
+                    compactNav ? "justify-center p-2.5" : "gap-3 p-2.5",
+                    topicActive
+                      ? "bg-[#82ba00]/10 text-[#82ba00]"
+                      : "text-gray-600 dark:text-gray-300",
+                  )}
                 >
                   <div
-                    className={`rounded-lg bg-gray-50 p-1.5 dark:bg-white/5 ${topic.color || "text-gray-500"} transition-transform group-hover:scale-110`}
-                  >
-                    {Icon ? (
-                      <Icon className="h-4 w-4" />
-                    ) : (
-                      <div className="h-4 w-4" />
+                    className={cn(
+                      "bg-gray-50 p-1.5 dark:bg-white/5 rounded-none transition-transform group-hover:scale-110",
+                      colorClass,
                     )}
+                  >
+                    <Icon className="h-4 w-4" />
                   </div>
-                  <span className="font-medium transition-colors group-hover:text-[#82ba00]">
-                    {topic.name}
-                  </span>
+                  {!compactNav ? (
+                    <span className="font-medium transition-colors group-hover:text-[#82ba00]">
+                      {tag.name}
+                    </span>
+                  ) : null}
                 </Link>
               )
             })}
           </div>
         </div>
 
-        <footer className="shrink-0 border-t border-gray-100/50 bg-gray-50/30 p-4 dark:border-white/5 dark:bg-white/5">
-          <div className="flex flex-wrap gap-x-3 gap-y-1 text-[10px] font-medium text-gray-400">
-            <span className="cursor-pointer transition-colors hover:text-[#82ba00]">
-              About
-            </span>
-            <span className="cursor-pointer transition-colors hover:text-[#82ba00]">
-              Privacy
-            </span>
-            <span className="cursor-pointer transition-colors hover:text-[#82ba00]">
-              Terms
-            </span>
-          </div>
-        </footer>
+        {!compactNav ? (
+          <footer className="shrink-0 border-t border-gray-100/50 bg-gray-50/30 p-4 dark:border-white/5 dark:bg-white/5">
+            <div className="flex flex-wrap gap-x-3 gap-y-1 text-[10px] font-medium text-gray-400">
+              <span className="cursor-pointer transition-colors hover:text-[#82ba00]">
+                About
+              </span>
+              <span className="cursor-pointer transition-colors hover:text-[#82ba00]">
+                Privacy
+              </span>
+              <span className="cursor-pointer transition-colors hover:text-[#82ba00]">
+                Terms
+              </span>
+            </div>
+          </footer>
+        ) : null}
       </div>
     </div>
   )
@@ -172,54 +226,44 @@ export const LeftSidebar = ({ topics }: LeftSidebarProps) => {
 
 function NavItem({
   to,
+  search,
   icon,
   label,
   active,
   onNavigate,
+  compact,
 }: {
   to: string
+  search?: Record<string, string | undefined>
   icon: ReactNode
   label: string
   active: boolean
   onNavigate?: () => void
+  compact?: boolean
 }) {
   return (
     <Link
       to={to}
+      {...(search !== undefined ? { search } : {})}
       onClick={onNavigate}
-      className={`group flex w-full items-center gap-3 rounded-xl p-3 text-sm font-semibold transition-all ${
+      title={label}
+      className={cn(
+        "group flex w-full items-center text-sm font-semibold transition-all rounded-none",
+        compact ? "justify-center p-3" : "gap-3 p-3",
         active
           ? "bg-[#82ba00]/10 text-[#82ba00] shadow-sm"
-          : "text-gray-600 hover:bg-gray-100/50 dark:text-gray-300 dark:hover:bg-white/5"
-      }`}
+          : "text-gray-600 hover:bg-gray-100/50 dark:text-gray-300 dark:hover:bg-white/5",
+      )}
     >
       <div
-        className={`transition-transform ${active ? "scale-110" : "group-hover:scale-110"}`}
+        className={cn(
+          "transition-transform",
+          active ? "scale-110" : "group-hover:scale-110",
+        )}
       >
         {icon}
       </div>
-      <span>{label}</span>
+      {!compact ? <span>{label}</span> : null}
     </Link>
-  )
-}
-
-function NavItemButton({
-  icon,
-  label,
-  onClick,
-}: {
-  icon: ReactNode
-  label: string
-  onClick?: () => void
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="group flex w-full items-center gap-3 rounded-xl p-3 text-sm font-semibold text-gray-600 transition-all hover:bg-gray-100/50 dark:text-gray-300 dark:hover:bg-white/5"
-    >
-      <div className="transition-transform group-hover:scale-110">{icon}</div>
-      <span>{label}</span>
-    </button>
   )
 }

@@ -3,12 +3,13 @@ import uuid
 from datetime import datetime, timezone
 from typing import Any
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from sqlalchemy import func as sa_func
 from sqlmodel import Field, Session, SQLModel, col, func, select
 
 from app.api.deps import CurrentUser, SessionDep
-from app.models import Post, Reply, Tag, User
+from app.core.config import settings
+from app.models import Post, PostTagLink, Reply, Tag, User
 
 # 每用户每日最多新建话题（空间）次数，方案 B
 TAG_CREATE_DAILY_LIMIT = 5
@@ -63,6 +64,9 @@ class AuthorPublic(SQLModel):
 class TagsPublic(SQLModel):
     data: list[TagPublic]
     count: int
+    # 仅当请求带 limit 分页时出现；全量列表时为默认
+    next_cursor: str | None = None
+    has_more: bool = False
 
 
 class PostPublic(SQLModel):
@@ -191,27 +195,135 @@ def _get_reply_count(*, session: Session, post_id: int) -> int:
     return int(session.exec(statement).one())
 
 
+def _resolve_tag_for_filter(
+    *,
+    session: Session,
+    tag_id: uuid.UUID | None,
+    tag_slug: str | None,
+) -> Tag | None:
+    if tag_id is not None:
+        return session.exec(select(Tag).where(Tag.public_id == tag_id)).first()
+    if tag_slug is not None and tag_slug.strip():
+        return session.exec(select(Tag).where(Tag.slug == tag_slug.strip())).first()
+    return None
+
+
+def _tags_by_post_id(*, session: Session, post_ids: list[int]) -> dict[int, list[Tag]]:
+    if not post_ids:
+        return {}
+    stmt = (
+        select(PostTagLink, Tag)
+        .join(Tag, Tag.id == PostTagLink.tag_id)
+        .where(PostTagLink.post_id.in_(post_ids))
+        .order_by(Tag.slug.asc())
+    )
+    rows = session.exec(stmt).all()
+    out: dict[int, list[Tag]] = {pid: [] for pid in post_ids}
+    for link, tag in rows:
+        out[link.post_id].append(tag)
+    return out
+
+
+def _tags_for_single_post(*, session: Session, post_id: int) -> list[TagPublic]:
+    stmt = (
+        select(Tag)
+        .join(PostTagLink, PostTagLink.tag_id == Tag.id)
+        .where(PostTagLink.post_id == post_id)
+        .order_by(Tag.slug.asc())
+    )
+    tags = session.exec(stmt).all()
+    return [_tag_to_public(t) for t in tags]
+
+
 # -----------------------------
 # Tags
 # -----------------------------
 
 
+@tags_router.get("/nav", response_model=TagsPublic)
+def list_tags_nav(*, session: SessionDep, _current_user: CurrentUser) -> TagsPublic:
+    """
+    左侧导航短列表：配置了 NAV_TAG_PUBLIC_IDS 时按该顺序返回；
+    否则按 post_tags 关联帖子数降序返回热门话题（TAG_NAV_LIMIT 条）。
+    """
+    configured = settings.nav_tag_public_ids()
+    if configured:
+        tags = session.exec(select(Tag).where(Tag.public_id.in_(configured))).all()
+        by_pid = {t.public_id: t for t in tags}
+        ordered = [by_pid[pid] for pid in configured if pid in by_pid]
+        public_tags = [_tag_to_public(t) for t in ordered]
+        return TagsPublic(data=public_tags, count=len(public_tags))
+
+    cnt = func.count(PostTagLink.post_id).label("cnt")  # type: ignore[attr-defined]
+    subq = (
+        select(PostTagLink.tag_id, cnt)
+        .join(Post, Post.id == PostTagLink.post_id)
+        .where(Post.is_deleted == False)  # noqa: E712
+        .group_by(PostTagLink.tag_id)
+        .subquery()
+    )
+    stmt = (
+        select(Tag)
+        .join(subq, Tag.id == subq.c.tag_id)
+        .order_by(subq.c.cnt.desc(), Tag.slug.asc())
+        .limit(settings.TAG_NAV_LIMIT)
+    )
+    rows = session.exec(stmt).all()
+    public_tags = [_tag_to_public(t) for t in rows]
+    if not public_tags:
+        # 尚无 post_tags 关联时热门为空，回退为按 slug 取若干标签（与种子数据兼容）
+        fb = session.exec(
+            select(Tag).order_by(Tag.slug.asc()).limit(settings.TAG_NAV_LIMIT)
+        ).all()
+        public_tags = [_tag_to_public(t) for t in fb]
+    return TagsPublic(data=public_tags, count=len(public_tags))
+
+
 @tags_router.get("/", response_model=TagsPublic)
 def list_tags(
-    *, session: SessionDep, _current_user: CurrentUser
+    *,
+    session: SessionDep,
+    _current_user: CurrentUser,
+    after_slug: str | None = Query(
+        default=None,
+        description="游标：仅返回 slug 大于该值的标签（按 slug 升序，字典序）",
+    ),
+    limit: int | None = Query(
+        default=None,
+        ge=1,
+        le=200,
+        description="分页条数；不传则返回全量（发帖多选等场景）",
+    ),
 ) -> TagsPublic:
     """
-    获取 Tag 列表（用于发帖页 Tag 多选）。
+    获取 Tag 列表。
 
-    说明：
-    - 读取接口按 `auth_required` 处理（前端 layout 已做登录保护，不影响闭环）。
+    - 不传 `limit`：返回全部标签（兼容发帖页、composer 全选）。
+    - 传 `limit`：按 `slug` 升序分页；`after_slug` 为上一页最后一条的 `slug`（exclusive）。
     """
 
-    statement = select(Tag).order_by(Tag.slug.asc())
-    tags = session.exec(statement).all()
+    if limit is None:
+        statement = select(Tag).order_by(Tag.slug.asc())
+        tags = session.exec(statement).all()
+        public_tags = [_tag_to_public(t) for t in tags]
+        return TagsPublic(data=public_tags, count=len(public_tags))
 
-    public_tags = [_tag_to_public(t) for t in tags]
-    return TagsPublic(data=public_tags, count=len(public_tags))
+    stmt = select(Tag).order_by(Tag.slug.asc())
+    cursor = (after_slug or "").strip()
+    if cursor:
+        stmt = stmt.where(col(Tag.slug) > cursor)
+    stmt = stmt.limit(limit + 1)
+    rows = session.exec(stmt).all()
+    has_more = len(rows) > limit
+    page_rows = rows[:limit]
+    public_tags = [_tag_to_public(t) for t in page_rows]
+    next_c = page_rows[-1].slug if has_more and page_rows else None
+    return TagsPublic(
+        data=public_tags,
+        count=len(public_tags),
+        next_cursor=next_c,
+        has_more=has_more,
+    )
 
 
 @tags_router.get("/suggest", response_model=TagsSuggest)
@@ -346,31 +458,58 @@ def list_posts(
     current_user: CurrentUser,
     skip: int = 0,
     limit: int = 20,
+    tag_id: uuid.UUID | None = Query(default=None),
+    tag_slug: str | None = Query(default=None),
 ) -> list[PostPublic]:
     """
     获取帖子列表（首页 Feed）。
 
-    字段契约（MVP）：
-    - `content`：Post.body
-    - `timestamp`：Post.created_at（ISO 字符串）
-    - `comments`：该帖 replies 条数（过滤 is_deleted=false）
+    可选 `tag_id`（推荐）或 `tag_slug` 筛选关联了该标签的帖子；若同时传，以 `tag_id` 为准
+    （`tag_slug` 仅当未传 `tag_id` 时生效）。标签不存在时 404。
+
+    每条帖子返回 `tags`（批量查询，避免 N+1）。
     """
     _ = current_user
 
-    posts_stmt = (
-        select(Post)
-        .where(Post.is_deleted == False)  # noqa: E712
-        .order_by(Post.created_at.desc())
-        .offset(skip)
-        .limit(limit)
-    )
+    filter_tag: Tag | None = None
+    if tag_id is not None or (tag_slug is not None and tag_slug.strip()):
+        filter_tag = _resolve_tag_for_filter(
+            session=session, tag_id=tag_id, tag_slug=tag_slug
+        )
+        if filter_tag is None:
+            raise HTTPException(status_code=404, detail="Tag not found")
+
+    if filter_tag is not None:
+        posts_stmt = (
+            select(Post)
+            .join(PostTagLink, PostTagLink.post_id == Post.id)
+            .where(PostTagLink.tag_id == filter_tag.id)
+            .where(Post.is_deleted == False)  # noqa: E712
+            .order_by(Post.created_at.desc())
+            .offset(skip)
+            .limit(limit)
+        )
+    else:
+        posts_stmt = (
+            select(Post)
+            .where(Post.is_deleted == False)  # noqa: E712
+            .order_by(Post.created_at.desc())
+            .offset(skip)
+            .limit(limit)
+        )
+
     posts = session.exec(posts_stmt).all()
+    post_ids = [p.id for p in posts if p.id is not None]
+    tags_map = _tags_by_post_id(session=session, post_ids=post_ids)
 
     results: list[PostPublic] = []
     for p in posts:
+        if p.id is None:
+            continue
         comments = _get_reply_count(session=session, post_id=p.id)
-        # MVP 不展示 tags，直接返回空数组以减少查询成本
-        results.append(_post_to_public(post=p, comments=comments, tags=[]))
+        tag_rows = tags_map.get(p.id, [])
+        tags_public = [_tag_to_public(t) for t in tag_rows]
+        results.append(_post_to_public(post=p, comments=comments, tags=tags_public))
     return results
 
 
@@ -391,8 +530,8 @@ def get_post_detail(
 
     _ = current_user
     comments = _get_reply_count(session=session, post_id=post.id)
-    # 详情页文档允许 tags 先空数组；本 MVP 按成本直接返回空
-    return _post_to_public(post=post, comments=comments, tags=[])
+    tags_public = _tags_for_single_post(session=session, post_id=post.id)
+    return _post_to_public(post=post, comments=comments, tags=tags_public)
 
 
 @router.get("/{post_id}/replies", response_model=list[ReplyPublic])
@@ -453,4 +592,3 @@ def create_reply(
     session.refresh(reply)
 
     return _reply_to_public(reply=reply)
-

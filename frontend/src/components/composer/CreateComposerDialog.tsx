@@ -5,12 +5,12 @@ import { useEffect, useMemo, useState } from "react"
 import { toast } from "sonner"
 
 import { ApiError, PostsService, TagsService } from "@/client"
-import { useLocale } from "@/contexts/locale-context"
-import { useCreateComposer } from "@/contexts/create-composer-context"
-import { cn } from "@/lib/utils"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useCreateComposer } from "@/contexts/create-composer-context"
+import { useLocale } from "@/contexts/locale-context"
+import { cn } from "@/lib/utils"
 
 /**
  * 创建内容弹窗（提问 / 回答 / 发帖）
@@ -37,8 +37,8 @@ export function CreateComposerDialog() {
   const [answerBody, setAnswerBody] = useState("")
 
   const tagsQuery = useQuery({
-    queryKey: ["tags"],
-    queryFn: TagsService.listTags,
+    queryKey: ["tags", "all"],
+    queryFn: () => TagsService.listTags({}),
     enabled: state.open && (state.mode === "ask" || state.mode === "post"),
   })
 
@@ -58,7 +58,7 @@ export function CreateComposerDialog() {
 
   const canSubmitAnswer = useMemo(
     () => answerQuestionId.length > 0 && answerBody.trim().length > 0,
-    [answerQuestionId, answerBody]
+    [answerQuestionId, answerBody],
   )
 
   const createPostMutation = useMutation({
@@ -172,77 +172,81 @@ export function CreateComposerDialog() {
               fullscreen && "flex flex-1 flex-col",
             )}
           >
-              <TabsContent value="ask">
-                <ComposerPostForm
-                  modeLabel="Ask"
-                  composerOpen={state.open}
-                  title={title}
-                  body={body}
-                  setTitle={setTitle}
-                  setBody={setBody}
-                  tagsQueryState={{
-                    isLoading: tagsQuery.isLoading,
-                    isError: tagsQuery.isError,
-                    tags,
-                    selectedTagIds,
-                    setSelectedTagIds,
-                  }}
-                  queryClient={queryClient}
-                  canSubmit={canSubmitPost}
-                  isSubmitting={createPostMutation.isPending}
-                  submitLabel="发布问题"
-                  onSubmit={() => createPostMutation.mutate()}
-                  error={createPostMutation.isError ? "发布失败，请稍后重试。" : null}
-                />
-              </TabsContent>
+            <TabsContent value="ask">
+              <ComposerPostForm
+                modeLabel="Ask"
+                composerOpen={state.open}
+                title={title}
+                body={body}
+                setTitle={setTitle}
+                setBody={setBody}
+                tagsQueryState={{
+                  isLoading: tagsQuery.isLoading,
+                  isError: tagsQuery.isError,
+                  tags,
+                  selectedTagIds,
+                  setSelectedTagIds,
+                }}
+                queryClient={queryClient}
+                canSubmit={canSubmitPost}
+                isSubmitting={createPostMutation.isPending}
+                submitLabel="发布问题"
+                onSubmit={() => createPostMutation.mutate()}
+                error={
+                  createPostMutation.isError ? "发布失败，请稍后重试。" : null
+                }
+              />
+            </TabsContent>
 
-              <TabsContent value="post">
-                <ComposerPostForm
-                  modeLabel="发帖"
-                  composerOpen={state.open}
-                  title={title}
-                  body={body}
-                  setTitle={setTitle}
-                  setBody={setBody}
-                  tagsQueryState={{
-                    isLoading: tagsQuery.isLoading,
-                    isError: tagsQuery.isError,
-                    tags,
-                    selectedTagIds,
-                    setSelectedTagIds,
-                  }}
-                  queryClient={queryClient}
-                  canSubmit={canSubmitPost}
-                  isSubmitting={createPostMutation.isPending}
-                  submitLabel="发布"
-                  onSubmit={() => createPostMutation.mutate()}
-                  error={createPostMutation.isError ? "发布失败，请稍后重试。" : null}
-                />
-              </TabsContent>
+            <TabsContent value="post">
+              <ComposerPostForm
+                modeLabel="发帖"
+                composerOpen={state.open}
+                title={title}
+                body={body}
+                setTitle={setTitle}
+                setBody={setBody}
+                tagsQueryState={{
+                  isLoading: tagsQuery.isLoading,
+                  isError: tagsQuery.isError,
+                  tags,
+                  selectedTagIds,
+                  setSelectedTagIds,
+                }}
+                queryClient={queryClient}
+                canSubmit={canSubmitPost}
+                isSubmitting={createPostMutation.isPending}
+                submitLabel="发布"
+                onSubmit={() => createPostMutation.mutate()}
+                error={
+                  createPostMutation.isError ? "发布失败，请稍后重试。" : null
+                }
+              />
+            </TabsContent>
 
-              <TabsContent value="answer">
-                <ComposerAnswerForm
-                  questions={answerQuestions.map((q) => ({
-                    id: q.id,
-                    title: q.title,
-                    authorName: q.author.name,
-                  }))}
-                  selectedQuestionId={answerQuestionId}
-                  setSelectedQuestionId={setAnswerQuestionId}
-                  answer={answerBody}
-                  setAnswer={setAnswerBody}
-                  canSubmit={canSubmitAnswer}
-                  isSubmitting={createReplyMutation.isPending}
-                  isLoadingQuestions={answerQuestionsQuery.isLoading}
-                  hasQuestionLoadError={answerQuestionsQuery.isError}
-                  onSubmit={() => createReplyMutation.mutate()}
-                  error={
-                    createReplyMutation.isError
-                      ? "回答发布失败，请稍后重试。"
-                      : null
-                  }
-                />
-              </TabsContent>
+            <TabsContent value="answer">
+              <ComposerAnswerForm
+                questions={answerQuestions.map((q) => ({
+                  id: q.id,
+                  title: q.title,
+                  authorName: q.author.name,
+                }))}
+                selectedQuestionId={answerQuestionId}
+                setSelectedQuestionId={setAnswerQuestionId}
+                answer={answerBody}
+                setAnswer={setAnswerBody}
+                canSubmit={canSubmitAnswer}
+                isSubmitting={createReplyMutation.isPending}
+                isLoadingQuestions={answerQuestionsQuery.isLoading}
+                hasQuestionLoadError={answerQuestionsQuery.isError}
+                onSubmit={() => createReplyMutation.mutate()}
+                error={
+                  createReplyMutation.isError
+                    ? "回答发布失败，请稍后重试。"
+                    : null
+                }
+              />
+            </TabsContent>
           </div>
         </Tabs>
       </DialogContent>
@@ -276,7 +280,9 @@ function ComposerPostForm({
     isError: boolean
     tags: Array<{ id: string; name: string; slug: string }>
     selectedTagIds: Set<string>
-    setSelectedTagIds: (next: Set<string> | ((prev: Set<string>) => Set<string>)) => void
+    setSelectedTagIds: (
+      next: Set<string> | ((prev: Set<string>) => Set<string>),
+    ) => void
   }
   queryClient: ReturnType<typeof useQueryClient>
   canSubmit: boolean
@@ -294,10 +300,7 @@ function ComposerPostForm({
   const [debouncedQ, setDebouncedQ] = useState("")
 
   useEffect(() => {
-    const id = window.setTimeout(
-      () => setDebouncedQ(newTopicName.trim()),
-      350,
-    )
+    const id = window.setTimeout(() => setDebouncedQ(newTopicName.trim()), 350)
     return () => clearTimeout(id)
   }, [newTopicName])
 
@@ -418,7 +421,9 @@ function ComposerPostForm({
 
       <div className="space-y-2 rounded-lg border border-[#82ba00]/25 bg-[#82ba00]/5 p-3 dark:bg-[#82ba00]/10">
         <div className="text-sm font-medium">{t("composer.newTopic")}</div>
-        <p className="text-xs text-muted-foreground">{t("sidebar.addTopicHint")}</p>
+        <p className="text-xs text-muted-foreground">
+          {t("sidebar.addTopicHint")}
+        </p>
         <input
           value={newTopicName}
           onChange={(e) => setNewTopicName(e.target.value)}
@@ -434,7 +439,8 @@ function ComposerPostForm({
           maxLength={500}
           className="w-full resize-y rounded-md border border-input bg-background px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-[#82ba00]/40"
         />
-        {debouncedQ.length >= 1 && (suggestQuery.data?.data?.length ?? 0) > 0 ? (
+        {debouncedQ.length >= 1 &&
+        (suggestQuery.data?.data?.length ?? 0) > 0 ? (
           <div className="space-y-1">
             <div className="text-xs font-medium text-muted-foreground">
               {t("composer.similarTopics")}
@@ -458,8 +464,7 @@ function ComposerPostForm({
         <button
           type="button"
           disabled={
-            newTopicName.trim().length < 1 ||
-            createTagMutation.isPending
+            newTopicName.trim().length < 1 || createTagMutation.isPending
           }
           onClick={() => createTagMutation.mutate()}
           className="rounded-md bg-[#82ba00] px-3 py-1.5 text-xs font-medium text-white hover:bg-[#72a400] disabled:opacity-50"
@@ -569,4 +574,3 @@ function ComposerAnswerForm({
     </div>
   )
 }
-

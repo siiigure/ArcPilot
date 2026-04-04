@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { useState } from "react"
+import { Link } from "@tanstack/react-router"
 import {
   Copy,
   Flag,
@@ -9,8 +9,8 @@ import {
   UserMinus,
   UserPlus,
 } from "lucide-react"
-import { Link } from "@tanstack/react-router"
 import type { ReactNode } from "react"
+import { useState } from "react"
 import ReactMarkdown from "react-markdown"
 import { toast } from "sonner"
 
@@ -30,9 +30,15 @@ import type { Post } from "@/types"
 interface PostCardProps {
   post: Post
   onPostHidden?: () => void
+  /** 论坛列极窄时的标题列表态 */
+  compact?: boolean
 }
 
-export const PostCard = ({ post, onPostHidden }: PostCardProps) => {
+export const PostCard = ({
+  post,
+  onPostHidden,
+  compact = false,
+}: PostCardProps) => {
   const { t } = useLocale()
   const { user } = useAuth()
   const queryClient = useQueryClient()
@@ -87,6 +93,20 @@ export const PostCard = ({ post, onPostHidden }: PostCardProps) => {
   }
 
   const following = profileQuery.data?.is_following === true
+
+  if (compact) {
+    return (
+      <article className="border-b border-border py-2 last:border-b-0">
+        <Link
+          to="/post/$postId"
+          params={{ postId: post.id }}
+          className="line-clamp-2 text-sm font-semibold text-foreground hover:underline"
+        >
+          {post.title}
+        </Link>
+      </article>
+    )
+  }
 
   return (
     <article className="mb-4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition-colors dark:border-[#3e4042] dark:bg-[#242526]">

@@ -127,6 +127,12 @@ function Login() {
             <LoadingButton type="submit" loading={loginMutation.isPending}>
               Log In
             </LoadingButton>
+            {loginMutation.isPending ? (
+              <p className="text-center text-xs text-muted-foreground">
+                正在连接服务器… 若首次启动后端，建表可能需要数十秒；超过约 90
+                秒会提示超时，请查看终端数据库是否卡住。
+              </p>
+            ) : null}
           </div>
 
           <div className="text-center text-sm">

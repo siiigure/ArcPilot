@@ -18,10 +18,14 @@ import { Route as LayoutIndexRouteImport } from './routes/_layout/index'
 import { Route as LayoutSettingsRouteImport } from './routes/_layout/settings'
 import { Route as LayoutTopicsIndexRouteImport } from './routes/_layout/topics/index'
 import { Route as LayoutSpacesIndexRouteImport } from './routes/_layout/spaces/index'
+import { Route as LayoutKnowledgeIndexRouteImport } from './routes/_layout/knowledge/index'
 import { Route as LayoutUUserIdRouteImport } from './routes/_layout/u/$userId'
 import { Route as LayoutSpacesSpaceIdRouteImport } from './routes/_layout/spaces/$spaceId'
 import { Route as LayoutPostNewRouteImport } from './routes/_layout/post/new'
 import { Route as LayoutPostPostIdRouteImport } from './routes/_layout/post/$postId'
+import { Route as LayoutKnowledgeSpaceIdRouteImport } from './routes/_layout/knowledge/$spaceId'
+import { Route as LayoutKnowledgeSpaceIdIndexRouteImport } from './routes/_layout/knowledge/$spaceId/index'
+import { Route as LayoutKnowledgeSpaceIdDocSlugRouteImport } from './routes/_layout/knowledge/$spaceId/$docSlug'
 
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
@@ -67,6 +71,11 @@ const LayoutSpacesIndexRoute = LayoutSpacesIndexRouteImport.update({
   path: '/spaces/',
   getParentRoute: () => LayoutRoute,
 } as any)
+const LayoutKnowledgeIndexRoute = LayoutKnowledgeIndexRouteImport.update({
+  id: '/knowledge/',
+  path: '/knowledge/',
+  getParentRoute: () => LayoutRoute,
+} as any)
 const LayoutUUserIdRoute = LayoutUUserIdRouteImport.update({
   id: '/u/$userId',
   path: '/u/$userId',
@@ -87,6 +96,23 @@ const LayoutPostPostIdRoute = LayoutPostPostIdRouteImport.update({
   path: '/post/$postId',
   getParentRoute: () => LayoutRoute,
 } as any)
+const LayoutKnowledgeSpaceIdRoute = LayoutKnowledgeSpaceIdRouteImport.update({
+  id: '/knowledge/$spaceId',
+  path: '/knowledge/$spaceId',
+  getParentRoute: () => LayoutRoute,
+} as any)
+const LayoutKnowledgeSpaceIdIndexRoute =
+  LayoutKnowledgeSpaceIdIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => LayoutKnowledgeSpaceIdRoute,
+  } as any)
+const LayoutKnowledgeSpaceIdDocSlugRoute =
+  LayoutKnowledgeSpaceIdDocSlugRouteImport.update({
+    id: '/$docSlug',
+    path: '/$docSlug',
+    getParentRoute: () => LayoutKnowledgeSpaceIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof LayoutIndexRoute
@@ -95,12 +121,16 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/settings': typeof LayoutSettingsRoute
+  '/knowledge/$spaceId': typeof LayoutKnowledgeSpaceIdRouteWithChildren
   '/post/$postId': typeof LayoutPostPostIdRoute
   '/post/new': typeof LayoutPostNewRoute
   '/spaces/$spaceId': typeof LayoutSpacesSpaceIdRoute
   '/u/$userId': typeof LayoutUUserIdRoute
+  '/knowledge/': typeof LayoutKnowledgeIndexRoute
   '/spaces/': typeof LayoutSpacesIndexRoute
   '/topics/': typeof LayoutTopicsIndexRoute
+  '/knowledge/$spaceId/$docSlug': typeof LayoutKnowledgeSpaceIdDocSlugRoute
+  '/knowledge/$spaceId/': typeof LayoutKnowledgeSpaceIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
@@ -113,8 +143,11 @@ export interface FileRoutesByTo {
   '/post/new': typeof LayoutPostNewRoute
   '/spaces/$spaceId': typeof LayoutSpacesSpaceIdRoute
   '/u/$userId': typeof LayoutUUserIdRoute
+  '/knowledge': typeof LayoutKnowledgeIndexRoute
   '/spaces': typeof LayoutSpacesIndexRoute
   '/topics': typeof LayoutTopicsIndexRoute
+  '/knowledge/$spaceId/$docSlug': typeof LayoutKnowledgeSpaceIdDocSlugRoute
+  '/knowledge/$spaceId': typeof LayoutKnowledgeSpaceIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -125,12 +158,16 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/_layout/settings': typeof LayoutSettingsRoute
   '/_layout/': typeof LayoutIndexRoute
+  '/_layout/knowledge/$spaceId': typeof LayoutKnowledgeSpaceIdRouteWithChildren
   '/_layout/post/$postId': typeof LayoutPostPostIdRoute
   '/_layout/post/new': typeof LayoutPostNewRoute
   '/_layout/spaces/$spaceId': typeof LayoutSpacesSpaceIdRoute
   '/_layout/u/$userId': typeof LayoutUUserIdRoute
+  '/_layout/knowledge/': typeof LayoutKnowledgeIndexRoute
   '/_layout/spaces/': typeof LayoutSpacesIndexRoute
   '/_layout/topics/': typeof LayoutTopicsIndexRoute
+  '/_layout/knowledge/$spaceId/$docSlug': typeof LayoutKnowledgeSpaceIdDocSlugRoute
+  '/_layout/knowledge/$spaceId/': typeof LayoutKnowledgeSpaceIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -141,12 +178,16 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/settings'
+    | '/knowledge/$spaceId'
     | '/post/$postId'
     | '/post/new'
     | '/spaces/$spaceId'
     | '/u/$userId'
+    | '/knowledge/'
     | '/spaces/'
     | '/topics/'
+    | '/knowledge/$spaceId/$docSlug'
+    | '/knowledge/$spaceId/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
@@ -159,8 +200,11 @@ export interface FileRouteTypes {
     | '/post/new'
     | '/spaces/$spaceId'
     | '/u/$userId'
+    | '/knowledge'
     | '/spaces'
     | '/topics'
+    | '/knowledge/$spaceId/$docSlug'
+    | '/knowledge/$spaceId'
   id:
     | '__root__'
     | '/_layout'
@@ -170,12 +214,16 @@ export interface FileRouteTypes {
     | '/signup'
     | '/_layout/settings'
     | '/_layout/'
+    | '/_layout/knowledge/$spaceId'
     | '/_layout/post/$postId'
     | '/_layout/post/new'
     | '/_layout/spaces/$spaceId'
     | '/_layout/u/$userId'
+    | '/_layout/knowledge/'
     | '/_layout/spaces/'
     | '/_layout/topics/'
+    | '/_layout/knowledge/$spaceId/$docSlug'
+    | '/_layout/knowledge/$spaceId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -251,6 +299,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutSpacesIndexRouteImport
       parentRoute: typeof LayoutRoute
     }
+    '/_layout/knowledge/': {
+      id: '/_layout/knowledge/'
+      path: '/knowledge'
+      fullPath: '/knowledge/'
+      preLoaderRoute: typeof LayoutKnowledgeIndexRouteImport
+      parentRoute: typeof LayoutRoute
+    }
     '/_layout/u/$userId': {
       id: '/_layout/u/$userId'
       path: '/u/$userId'
@@ -279,16 +334,55 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutPostPostIdRouteImport
       parentRoute: typeof LayoutRoute
     }
+    '/_layout/knowledge/$spaceId': {
+      id: '/_layout/knowledge/$spaceId'
+      path: '/knowledge/$spaceId'
+      fullPath: '/knowledge/$spaceId'
+      preLoaderRoute: typeof LayoutKnowledgeSpaceIdRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/knowledge/$spaceId/': {
+      id: '/_layout/knowledge/$spaceId/'
+      path: '/'
+      fullPath: '/knowledge/$spaceId/'
+      preLoaderRoute: typeof LayoutKnowledgeSpaceIdIndexRouteImport
+      parentRoute: typeof LayoutKnowledgeSpaceIdRoute
+    }
+    '/_layout/knowledge/$spaceId/$docSlug': {
+      id: '/_layout/knowledge/$spaceId/$docSlug'
+      path: '/$docSlug'
+      fullPath: '/knowledge/$spaceId/$docSlug'
+      preLoaderRoute: typeof LayoutKnowledgeSpaceIdDocSlugRouteImport
+      parentRoute: typeof LayoutKnowledgeSpaceIdRoute
+    }
   }
 }
+
+interface LayoutKnowledgeSpaceIdRouteChildren {
+  LayoutKnowledgeSpaceIdDocSlugRoute: typeof LayoutKnowledgeSpaceIdDocSlugRoute
+  LayoutKnowledgeSpaceIdIndexRoute: typeof LayoutKnowledgeSpaceIdIndexRoute
+}
+
+const LayoutKnowledgeSpaceIdRouteChildren: LayoutKnowledgeSpaceIdRouteChildren =
+  {
+    LayoutKnowledgeSpaceIdDocSlugRoute: LayoutKnowledgeSpaceIdDocSlugRoute,
+    LayoutKnowledgeSpaceIdIndexRoute: LayoutKnowledgeSpaceIdIndexRoute,
+  }
+
+const LayoutKnowledgeSpaceIdRouteWithChildren =
+  LayoutKnowledgeSpaceIdRoute._addFileChildren(
+    LayoutKnowledgeSpaceIdRouteChildren,
+  )
 
 interface LayoutRouteChildren {
   LayoutSettingsRoute: typeof LayoutSettingsRoute
   LayoutIndexRoute: typeof LayoutIndexRoute
+  LayoutKnowledgeSpaceIdRoute: typeof LayoutKnowledgeSpaceIdRouteWithChildren
   LayoutPostPostIdRoute: typeof LayoutPostPostIdRoute
   LayoutPostNewRoute: typeof LayoutPostNewRoute
   LayoutSpacesSpaceIdRoute: typeof LayoutSpacesSpaceIdRoute
   LayoutUUserIdRoute: typeof LayoutUUserIdRoute
+  LayoutKnowledgeIndexRoute: typeof LayoutKnowledgeIndexRoute
   LayoutSpacesIndexRoute: typeof LayoutSpacesIndexRoute
   LayoutTopicsIndexRoute: typeof LayoutTopicsIndexRoute
 }
@@ -296,10 +390,12 @@ interface LayoutRouteChildren {
 const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutSettingsRoute: LayoutSettingsRoute,
   LayoutIndexRoute: LayoutIndexRoute,
+  LayoutKnowledgeSpaceIdRoute: LayoutKnowledgeSpaceIdRouteWithChildren,
   LayoutPostPostIdRoute: LayoutPostPostIdRoute,
   LayoutPostNewRoute: LayoutPostNewRoute,
   LayoutSpacesSpaceIdRoute: LayoutSpacesSpaceIdRoute,
   LayoutUUserIdRoute: LayoutUUserIdRoute,
+  LayoutKnowledgeIndexRoute: LayoutKnowledgeIndexRoute,
   LayoutSpacesIndexRoute: LayoutSpacesIndexRoute,
   LayoutTopicsIndexRoute: LayoutTopicsIndexRoute,
 }

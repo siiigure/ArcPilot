@@ -1,21 +1,25 @@
+import pytest
+from fastapi import HTTPException
 from sqlmodel import Session, select
 
 from app import crud
-from app.models import CollabSpace, CollabSpaceMember, SpaceInvite, User, UserCreate
 from app.api.routes.spaces import (
     AcceptInviteRequest,
-    SpaceMemberRoleUpdate,
     SpaceCreate,
     SpaceInviteCreate,
+    SpaceMemberRoleUpdate,
     accept_space_invite,
     create_space,
     create_space_invite,
+    create_space_invite_link,
     get_space_detail,
     list_space_members,
     list_spaces,
     remove_space_member,
+    reset_space_invites,
     update_space_member_role,
 )
+from app.models import CollabSpace, CollabSpaceMember, SpaceInvite, User, UserCreate
 from tests.utils.utils import random_email
 
 
@@ -105,6 +109,91 @@ def test_invite_and_accept_by_code(db: Session) -> None:
     invite = db.exec(select(SpaceInvite).where(SpaceInvite.invite_code == invite_code)).first()
     assert invite
     assert invite.status == "accepted"
+
+
+def test_stateless_invite_link_and_accept(db: Session) -> None:
+    owner = _create_user(db)
+    invited_user = _create_user(db)
+
+    created = create_space(
+        session=db,
+        body=SpaceCreate(name="无状态邀请空间"),
+        current_user=owner,
+    )
+    link = create_space_invite_link(
+        session=db,
+        space_id=created.id,
+        body=SpaceInviteCreate(role="editor", expires_in_days=7),
+        current_user=owner,
+    )
+    assert link.invite_code.startswith("cs1")
+    assert link.status == "active"
+
+    accepted = accept_space_invite(
+        session=db,
+        body=AcceptInviteRequest(invite_code=link.invite_code),
+        current_user=invited_user,
+    )
+    assert accepted.space_id == created.id
+    assert accepted.role == "editor"
+
+    members = list_space_members(session=db, space_id=created.id, current_user=invited_user)
+    assert any(m.email == invited_user.email and m.role == "editor" for m in members.data)
+
+
+def test_stateless_invite_same_link_multi_member(db: Session) -> None:
+    owner = _create_user(db)
+    u1 = _create_user(db)
+    u2 = _create_user(db)
+    created = create_space(
+        session=db,
+        body=SpaceCreate(name="多用途链接"),
+        current_user=owner,
+    )
+    link = create_space_invite_link(
+        session=db,
+        space_id=created.id,
+        body=SpaceInviteCreate(role="viewer", expires_in_days=7),
+        current_user=owner,
+    )
+    _ = accept_space_invite(
+        session=db,
+        body=AcceptInviteRequest(invite_code=link.invite_code),
+        current_user=u1,
+    )
+    _ = accept_space_invite(
+        session=db,
+        body=AcceptInviteRequest(invite_code=link.invite_code),
+        current_user=u2,
+    )
+    members = list_space_members(session=db, space_id=created.id, current_user=owner)
+    assert members.count == 3
+
+
+def test_reset_invites_invalidates_stateless_token(db: Session) -> None:
+    owner = _create_user(db)
+    invited = _create_user(db)
+    created = create_space(
+        session=db,
+        body=SpaceCreate(name="重置后失效"),
+        current_user=owner,
+    )
+    link = create_space_invite_link(
+        session=db,
+        space_id=created.id,
+        body=SpaceInviteCreate(role="viewer", expires_in_days=7),
+        current_user=owner,
+    )
+    _ = reset_space_invites(session=db, space_id=created.id, current_user=owner)
+
+    with pytest.raises(HTTPException) as exc:
+        accept_space_invite(
+            session=db,
+            body=AcceptInviteRequest(invite_code=link.invite_code),
+            current_user=invited,
+        )
+    assert exc.value.status_code == 400
+    assert exc.value.detail == "Invalid or expired invite"
 
 
 def test_owner_can_update_and_remove_member(db: Session) -> None:

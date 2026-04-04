@@ -1,11 +1,11 @@
 import {
   createContext,
+  type ReactNode,
   useCallback,
   useContext,
   useEffect,
   useMemo,
   useState,
-  type ReactNode,
 } from "react"
 
 const XL_BREAKPOINT_PX = 1280
@@ -66,7 +66,9 @@ export function AppShellProvider({ children }: { children: ReactNode }) {
   )
 
   return (
-    <AppShellContext.Provider value={value}>{children}</AppShellContext.Provider>
+    <AppShellContext.Provider value={value}>
+      {children}
+    </AppShellContext.Provider>
   )
 }
 

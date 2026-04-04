@@ -19,8 +19,8 @@ function PostNewPage() {
   const [selectedTagIds, setSelectedTagIds] = useState<Set<string>>(new Set())
 
   const tagsQuery = useQuery({
-    queryKey: ["tags"],
-    queryFn: TagsService.listTags,
+    queryKey: ["tags", "all"],
+    queryFn: () => TagsService.listTags({}),
   })
 
   const tags = tagsQuery.data?.data ?? []
@@ -86,7 +86,8 @@ function PostNewPage() {
 
           {tags.length === 0 ? (
             <div className="rounded-md border border-dashed border-border p-3 text-sm text-muted-foreground">
-              暂无标签可选（后端会在初始化时 seed 标签；若你是新库请重启后端容器）。
+              暂无标签可选（后端会在初始化时 seed
+              标签；若你是新库请重启后端容器）。
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -144,4 +145,3 @@ function PostNewPage() {
     </div>
   )
 }
-

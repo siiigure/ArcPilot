@@ -22,29 +22,46 @@ const zh = {
   "header.navOpen": "打开导航菜单",
   "header.navClose": "关闭导航菜单",
   "header.language": "语言",
-  "header.notifications": "通知",
   "header.ask": "提问",
   "header.accountSettings": "账户设置",
   "header.logout": "退出登录",
+  "header.openAi": "打开 AI 助手",
+  "header.closeAi": "关闭 AI 助手",
+  "header.layoutForum": "论坛为主布局",
+  "header.layoutBalanced": "均衡布局",
+  "header.layoutAi": "AI 为主布局",
+  "header.ctxSep": "·",
+  "header.ctxForum": "论坛",
+  "header.ctxAi": "AI",
+  "header.ctxHome": "首页",
+  "header.ctxPostView": "帖子",
+
+  "ai.artifactsPlaceholder":
+    "预览区（Artifacts）：长文档、代码与图纸将在此展示；接入对话流后可联动高亮。",
 
   "sidebar.navTitle": "导航",
   "sidebar.closeNav": "关闭导航",
+  "sidebar.collapseRail": "收起侧栏（仅图标）",
+  "sidebar.expandRail": "展开侧栏",
   "sidebar.home": "首页",
-  "sidebar.following": "关注",
-  "sidebar.answer": "回答",
-  "sidebar.notifications": "通知",
+  "sidebar.knowledgeBase": "知识库",
   "sidebar.spaces": "空间",
   "sidebar.createSpace": "创建空间",
 
   "ai.closeAria": "关闭 AI 助手",
-  "ai.greeting":
-    "你好！我是 Arcpilot AI。今天我能帮你什么？",
+  "ai.greeting": "你好！我是 Arcpilot AI。今天我能帮你什么？",
   "ai.subtitle": "智能助手",
   "ai.inputPlaceholder": "输入消息…",
+  "ai.unavailable": "对话能力尚未接入服务端，请稍后再试。",
 
   "feed.loading": "正在加载帖子…",
   "feed.error": "加载失败，请稍后重试。",
   "feed.empty": "暂时还没有帖子，去发布第一条吧。",
+  "feed.topicFilterLabel": "当前话题：",
+  "feed.topicUnnamed": "所选话题",
+  "feed.clearTopicFilter": "查看全部",
+  "feed.topicNotFound": "该话题不存在或已删除。",
+  "feed.topicEmptyFallback": "该话题下暂时没有帖子，已为你展示全站最新内容。",
 
   "quickPost.placeholder": "你想分享什么？",
   "quickPost.ask": "提问",
@@ -79,6 +96,37 @@ const zh = {
   "topics.subtitle": "浏览社区话题；新建话题请在发帖时添加。",
   "topics.official": "官方",
   "topics.empty": "暂无话题",
+  "topics.loadMore": "加载更多",
+  "topics.loadingMore": "加载中…",
+  "topics.endOfList": "已显示全部话题",
+
+  "knowledge.title": "知识库",
+  "knowledge.subtitle":
+    "集中管理文档与检索知识，可与 RAG / 向量检索等服务对接。",
+  "knowledge.placeholder": "文档上传与检索能力开发中，敬请期待。",
+  "knowledge.hubTitle": "知识库",
+  "knowledge.hubSubtitle": "按协作空间浏览文档；仅空间成员可查看与搜索。",
+  "knowledge.hubLoading": "正在加载协作空间…",
+  "knowledge.hubError": "无法加载空间列表，请稍后重试。",
+  "knowledge.hubEmpty": "暂无协作空间。请先创建或加入空间后再使用知识库。",
+  "knowledge.hubOpen": "进入",
+  "knowledge.backHub": "返回知识库首页",
+  "knowledge.loadingSpace": "加载中…",
+  "knowledge.spaceHint": "左侧为目录；⌘K / Ctrl+K 搜索。",
+  "knowledge.searchShortcut": "搜索（⌘K）",
+  "knowledge.navAria": "知识库目录",
+  "knowledge.emptyDocs": "该空间下暂无文档。可由编辑者在后台创建（需 API）。",
+  "knowledge.outlinePlaceholder": "大纲：后续可从标题解析 H2/H3。",
+  "knowledge.searchTitle": "搜索知识库",
+  "knowledge.searchPlaceholder": "输入关键词…",
+  "knowledge.searchEmpty": "没有匹配结果。",
+  "knowledge.welcomeLine": "选择左侧文档开始阅读，或使用快捷键搜索。",
+  "knowledge.pickDoc": "内容来自服务端存储的 Markdown，与协作空间权限一致。",
+  "knowledge.backToSpace": "返回协作空间详情",
+  "knowledge.loadingDoc": "正在加载文档…",
+  "knowledge.loadError": "加载失败",
+  "knowledge.backSpace": "返回本空间知识库",
+  "knowledge.version": "版本",
 
   "sidebar.browseTopics": "浏览话题",
   "sidebar.addTopicHint": "发帖时添加或新建",
@@ -124,7 +172,8 @@ const zh = {
   "composer.topicLimit": "今日新建话题已达上限，请明日再试或选用已有话题",
 
   "settings.bioLabel": "个人简介",
-  "settings.bioPlaceholder": "一句话介绍自己，会显示在帖子头像旁（最多 160 字）",
+  "settings.bioPlaceholder":
+    "一句话介绍自己，会显示在帖子头像旁（最多 160 字）",
 
   "time.justNow": "刚刚",
   "time.minutesAgo": "{n} 分钟前",
@@ -137,17 +186,29 @@ const en = {
   "header.navOpen": "Open navigation",
   "header.navClose": "Close navigation",
   "header.language": "Language",
-  "header.notifications": "Notifications",
   "header.ask": "Ask",
   "header.accountSettings": "Account settings",
   "header.logout": "Log out",
+  "header.openAi": "Open AI assistant",
+  "header.closeAi": "Close AI assistant",
+  "header.layoutForum": "Forum-first layout",
+  "header.layoutBalanced": "Balanced layout",
+  "header.layoutAi": "AI-first layout",
+  "header.ctxSep": "·",
+  "header.ctxForum": "Forum",
+  "header.ctxAi": "AI",
+  "header.ctxHome": "Home",
+  "header.ctxPostView": "Post",
+
+  "ai.artifactsPlaceholder":
+    "Preview (Artifacts): long docs, code, and figures will appear here; link highlights when wired to chat.",
 
   "sidebar.navTitle": "Navigation",
   "sidebar.closeNav": "Close navigation",
+  "sidebar.collapseRail": "Collapse sidebar (icons only)",
+  "sidebar.expandRail": "Expand sidebar",
   "sidebar.home": "Home",
-  "sidebar.following": "Following",
-  "sidebar.answer": "Answer",
-  "sidebar.notifications": "Notifications",
+  "sidebar.knowledgeBase": "Knowledge base",
   "sidebar.spaces": "Spaces",
   "sidebar.createSpace": "Create Space",
 
@@ -155,10 +216,17 @@ const en = {
   "ai.greeting": "Hello! I'm Arcpilot AI. How can I help you today?",
   "ai.subtitle": "Intelligent Assistant",
   "ai.inputPlaceholder": "Type your message…",
+  "ai.unavailable": "Assistant is not connected yet. Please try again later.",
 
   "feed.loading": "Loading posts…",
   "feed.error": "Failed to load. Please try again.",
   "feed.empty": "No posts yet. Be the first to publish.",
+  "feed.topicFilterLabel": "Topic:",
+  "feed.topicUnnamed": "Selected topic",
+  "feed.clearTopicFilter": "Show all",
+  "feed.topicNotFound": "This topic does not exist or was removed.",
+  "feed.topicEmptyFallback":
+    "No posts in this topic yet. Showing the latest from the whole site.",
 
   "quickPost.placeholder": "What do you want to share?",
   "quickPost.ask": "Ask",
@@ -190,9 +258,42 @@ const en = {
   "post.hiddenToast": "We'll show fewer posts like this",
 
   "topics.title": "Topics",
-  "topics.subtitle": "Browse community topics. To create one, add it while posting.",
+  "topics.subtitle":
+    "Browse community topics. To create one, add it while posting.",
   "topics.official": "Official",
   "topics.empty": "No topics yet",
+  "topics.loadMore": "Load more",
+  "topics.loadingMore": "Loading…",
+  "topics.endOfList": "End of list",
+
+  "knowledge.title": "Knowledge base",
+  "knowledge.subtitle":
+    "Manage documents and retrieval; connect to RAG / vector search when ready.",
+  "knowledge.placeholder": "Upload and search are coming soon — stay tuned.",
+  "knowledge.hubTitle": "Knowledge base",
+  "knowledge.hubSubtitle": "Browse by collab space; members only.",
+  "knowledge.hubLoading": "Loading spaces…",
+  "knowledge.hubError": "Could not load spaces. Try again later.",
+  "knowledge.hubEmpty": "No collab spaces yet. Create or join a space first.",
+  "knowledge.hubOpen": "Open",
+  "knowledge.backHub": "Back to knowledge hub",
+  "knowledge.loadingSpace": "Loading…",
+  "knowledge.spaceHint": "Directory on the left; ⌘K / Ctrl+K to search.",
+  "knowledge.searchShortcut": "Search (⌘K)",
+  "knowledge.navAria": "Knowledge navigation",
+  "knowledge.emptyDocs": "No documents in this space yet.",
+  "knowledge.outlinePlaceholder": "Outline: H2/H3 extraction later.",
+  "knowledge.searchTitle": "Search knowledge",
+  "knowledge.searchPlaceholder": "Type a keyword…",
+  "knowledge.searchEmpty": "No matches.",
+  "knowledge.welcomeLine": "Pick a document on the left or press ⌘K to search.",
+  "knowledge.pickDoc":
+    "Content is Markdown from the API; permissions follow the space.",
+  "knowledge.backToSpace": "Back to collab space",
+  "knowledge.loadingDoc": "Loading document…",
+  "knowledge.loadError": "Failed to load",
+  "knowledge.backSpace": "Back to this space knowledge",
+  "knowledge.version": "Version",
 
   "sidebar.browseTopics": "Browse topics",
   "sidebar.addTopicHint": "Add when posting",
@@ -200,7 +301,8 @@ const en = {
   "sidebar.collabSpacesHint": "Members & files",
 
   "collabSpaces.title": "Collab spaces",
-  "collabSpaces.listSubtitle": "Share materials with members; only members can access assets.",
+  "collabSpaces.listSubtitle":
+    "Share materials with members; only members can access assets.",
   "collabSpaces.create": "Create collab space",
   "collabSpaces.name": "Name",
   "collabSpaces.description": "Description (optional)",
@@ -228,17 +330,20 @@ const en = {
   "collabSpaces.loading": "Loading…",
   "collabSpaces.error": "Failed to load",
   "collabSpaces.noAssets": "No assets yet",
-  "collabSpaces.inviteHint": "The invite code is copied to the clipboard and shown in a toast.",
+  "collabSpaces.inviteHint":
+    "The invite code is copied to the clipboard and shown in a toast.",
 
   "composer.newTopic": "New topic",
   "composer.newTopicName": "Topic name",
   "composer.newTopicDesc": "Description (optional)",
   "composer.createTopic": "Create & attach",
   "composer.similarTopics": "Similar existing topics",
-  "composer.topicLimit": "Daily limit reached — try tomorrow or pick an existing topic",
+  "composer.topicLimit":
+    "Daily limit reached — try tomorrow or pick an existing topic",
 
   "settings.bioLabel": "Bio",
-  "settings.bioPlaceholder": "Short intro shown next to your name in feeds (max 160 characters)",
+  "settings.bioPlaceholder":
+    "Short intro shown next to your name in feeds (max 160 characters)",
 
   "time.justNow": "just now",
   "time.minutesAgo": "{n} min ago",
@@ -291,23 +396,4 @@ export function formatRelativeTime(iso: string, locale: Locale): string {
   }
 
   return d.toLocaleDateString(locale === "zh" ? "zh-CN" : "en-US")
-}
-
-export function buildAiMockReply(locale: Locale, userInput: string): string {
-  if (locale === "zh") {
-    return (
-      `这是一个模拟的流式输出示例，用于演示 ArcPilot 的打字机效果。\n\n` +
-      `你的问题是：「${userInput}」。下面是一些思路：\n` +
-      `1. 明确 GIS 任务目标与数据范围；\n` +
-      `2. 选用合适的数据结构与空间分析工具；\n` +
-      `3. 逐步验证结果并可视化输出。`
-    )
-  }
-  return (
-    `This is a mock streamed reply to demonstrate ArcPilot's typewriter effect.\n\n` +
-    `Your question: "${userInput}". Here are some ideas:\n` +
-    `1. Clarify the GIS goal and data scope;\n` +
-    `2. Pick appropriate structures and spatial tools;\n` +
-    `3. Validate incrementally and visualize results.`
-  )
 }

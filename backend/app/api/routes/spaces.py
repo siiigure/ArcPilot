@@ -6,6 +6,11 @@ from pydantic import EmailStr
 from sqlmodel import Field, SQLModel, select
 
 from app.api.deps import CurrentUser, SessionDep
+from app.core.collab_invite_token import (
+    StatelessInvitePayload,
+    mint_stateless_invite_token,
+    parse_stateless_invite_token,
+)
 from app.core.collab_permissions import (
     SPACE_INVITE_ROLES,
     SPACE_ROLE_OWNER,
@@ -72,7 +77,7 @@ class SpaceInvitePublic(SQLModel):
 
 
 class AcceptInviteRequest(SQLModel):
-    invite_code: str = Field(min_length=4, max_length=64)
+    invite_code: str = Field(min_length=4, max_length=2048)
 
 
 class AcceptInviteResponse(SQLModel):
@@ -122,6 +127,102 @@ def _generate_unique_invite_code(session: SessionDep, *, space_internal_id: int)
         if not existing:
             return invite_code
     raise HTTPException(status_code=500, detail="Failed to generate unique invite code")
+
+
+def _accept_invite_from_db_row(
+    *,
+    session: SessionDep,
+    current_user: CurrentUser,
+    invite_code: str,
+) -> AcceptInviteResponse:
+    invite = session.exec(
+        select(SpaceInvite).where(SpaceInvite.invite_code == invite_code)
+    ).first()
+    if not invite:
+        raise HTTPException(status_code=404, detail="Invite not found")
+    if invite.status != "pending":
+        raise HTTPException(status_code=400, detail="Invite is not pending")
+
+    now = datetime.now(timezone.utc)
+    if invite.expires_at and invite.expires_at <= now:
+        invite.status = "expired"
+        invite.updated_at = get_datetime_utc()
+        session.add(invite)
+        session.commit()
+        raise HTTPException(status_code=400, detail="Invite is expired")
+
+    existing_member = session.exec(
+        select(CollabSpaceMember).where(
+            CollabSpaceMember.space_id == invite.space_id,
+            CollabSpaceMember.user_id == current_user.id,
+        )
+    ).first()
+    if not existing_member:
+        member = CollabSpaceMember(
+            space_id=invite.space_id,
+            user_id=current_user.id,
+            role=invite.role,
+        )
+        session.add(member)
+
+    invite.status = "accepted"
+    invite.updated_at = get_datetime_utc()
+    session.add(invite)
+    session.commit()
+
+    space = session.get(CollabSpace, invite.space_id)
+    if not space:
+        raise HTTPException(status_code=404, detail="Space not found")
+    return AcceptInviteResponse(
+        message="Invite accepted",
+        space_id=space.public_id,
+        role=invite.role,
+    )
+
+
+def _accept_stateless_invite_parsed(
+    *,
+    session: SessionDep,
+    current_user: CurrentUser,
+    parsed: StatelessInvitePayload,
+) -> AcceptInviteResponse:
+    space = session.exec(
+        select(CollabSpace).where(CollabSpace.public_id == parsed.space_public_id)
+    ).first()
+    if not space:
+        raise HTTPException(status_code=400, detail="Invalid or expired invite")
+    if space.invite_version != parsed.ver:
+        raise HTTPException(status_code=400, detail="Invalid or expired invite")
+
+    role = parsed.role.strip().lower()
+    if role not in SPACE_VALID_ROLES or role == SPACE_ROLE_OWNER:
+        raise HTTPException(status_code=400, detail="Invalid or expired invite")
+
+    existing_member = session.exec(
+        select(CollabSpaceMember).where(
+            CollabSpaceMember.space_id == space.id,
+            CollabSpaceMember.user_id == current_user.id,
+        )
+    ).first()
+    if existing_member:
+        return AcceptInviteResponse(
+            message="Already a member",
+            space_id=space.public_id,
+            role=existing_member.role,
+        )
+
+    member = CollabSpaceMember(
+        space_id=space.id,
+        user_id=current_user.id,
+        role=role,
+    )
+    session.add(member)
+    session.commit()
+    return AcceptInviteResponse(
+        message="Invite accepted",
+        space_id=space.public_id,
+        role=role,
+    )
 
 
 @router.post("/", response_model=SpacePublic)
@@ -288,6 +389,85 @@ def create_space_invite(
     )
 
 
+@router.post("/{space_id}/invite/link", response_model=SpaceInvitePublic)
+def create_space_invite_link(
+    *,
+    session: SessionDep,
+    space_id: uuid.UUID,
+    body: SpaceInviteCreate,
+    current_user: CurrentUser,
+) -> SpaceInvitePublic:
+    """
+    生成无状态邀请令牌（不写 space_invites 表）；适合高频分享链接。
+    """
+    space = _get_space_by_public_id_or_404(session, space_id)
+    member = get_current_space_member(
+        session,
+        current_user,
+        space.id,
+        raise_as_not_found=True,
+    )
+    if member.role not in SPACE_INVITE_ROLES:
+        raise HTTPException(status_code=403, detail="Current role cannot invite members")
+
+    role = body.role.strip().lower()
+    if role not in SPACE_VALID_ROLES or role == SPACE_ROLE_OWNER:
+        raise HTTPException(status_code=400, detail="Invite role must be editor or viewer")
+
+    token, expires_at = mint_stateless_invite_token(
+        space_public_id=space.public_id,
+        role=role,
+        invite_version=space.invite_version,
+        expires_in_days=body.expires_in_days,
+    )
+    return SpaceInvitePublic(
+        invite_code=token,
+        role=role,
+        status="active",
+        expires_at=expires_at,
+    )
+
+
+@router.post("/{space_id}/invite/reset", response_model=ResponseMessage)
+def reset_space_invites(
+    *,
+    session: SessionDep,
+    space_id: uuid.UUID,
+    current_user: CurrentUser,
+) -> ResponseMessage:
+    """
+    Owner：递增 invite_version（使旧无状态令牌失效），并将本空间 pending 表邀请置为 cancelled。
+    """
+    space = _get_space_by_public_id_or_404(session, space_id)
+    actor = get_current_space_member(
+        session,
+        current_user,
+        space.id,
+        raise_as_not_found=True,
+    )
+    if actor.role != SPACE_ROLE_OWNER:
+        raise HTTPException(status_code=403, detail="Only owner can reset invites")
+
+    now = get_datetime_utc()
+    space.invite_version = space.invite_version + 1
+    space.updated_at = now
+    session.add(space)
+
+    pending = session.exec(
+        select(SpaceInvite).where(
+            SpaceInvite.space_id == space.id,
+            SpaceInvite.status == "pending",
+        )
+    ).all()
+    for inv in pending:
+        inv.status = "cancelled"
+        inv.updated_at = now
+        session.add(inv)
+
+    session.commit()
+    return ResponseMessage(message="Invites reset")
+
+
 @invite_router.post("/accept", response_model=AcceptInviteResponse)
 def accept_space_invite(
     *,
@@ -295,48 +475,18 @@ def accept_space_invite(
     body: AcceptInviteRequest,
     current_user: CurrentUser,
 ) -> AcceptInviteResponse:
-    invite = session.exec(
-        select(SpaceInvite).where(SpaceInvite.invite_code == body.invite_code)
-    ).first()
-    if not invite:
-        raise HTTPException(status_code=404, detail="Invite not found")
-    if invite.status != "pending":
-        raise HTTPException(status_code=400, detail="Invite is not pending")
-
-    now = datetime.now(timezone.utc)
-    if invite.expires_at and invite.expires_at <= now:
-        invite.status = "expired"
-        invite.updated_at = get_datetime_utc()
-        session.add(invite)
-        session.commit()
-        raise HTTPException(status_code=400, detail="Invite is expired")
-
-    existing_member = session.exec(
-        select(CollabSpaceMember).where(
-            CollabSpaceMember.space_id == invite.space_id,
-            CollabSpaceMember.user_id == current_user.id,
+    code = body.invite_code.strip()
+    parsed = parse_stateless_invite_token(code)
+    if parsed is not None:
+        return _accept_stateless_invite_parsed(
+            session=session,
+            current_user=current_user,
+            parsed=parsed,
         )
-    ).first()
-    if not existing_member:
-        member = CollabSpaceMember(
-            space_id=invite.space_id,
-            user_id=current_user.id,
-            role=invite.role,
-        )
-        session.add(member)
-
-    invite.status = "accepted"
-    invite.updated_at = get_datetime_utc()
-    session.add(invite)
-    session.commit()
-
-    space = session.get(CollabSpace, invite.space_id)
-    if not space:
-        raise HTTPException(status_code=404, detail="Space not found")
-    return AcceptInviteResponse(
-        message="Invite accepted",
-        space_id=space.public_id,
-        role=invite.role,
+    return _accept_invite_from_db_row(
+        session=session,
+        current_user=current_user,
+        invite_code=code,
     )
 
 

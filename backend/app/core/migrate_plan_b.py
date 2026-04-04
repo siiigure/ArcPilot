@@ -8,7 +8,6 @@
 import logging
 
 from sqlalchemy import text
-from sqlalchemy.exc import SQLAlchemyError
 
 from app.core.config import settings
 
@@ -29,6 +28,7 @@ def run_plan_b_migrations(engine) -> None:
         "CREATE INDEX IF NOT EXISTS ix_tags_is_official ON tags (is_official);",
         "CREATE INDEX IF NOT EXISTS ix_tags_created_at ON tags (created_at);",
         "CREATE INDEX IF NOT EXISTS ix_tags_created_by_user_id ON tags (created_by_user_id);",
+        "ALTER TABLE collab_spaces ADD COLUMN IF NOT EXISTS invite_version INTEGER NOT NULL DEFAULT 1;",
     ]
 
     for sql in statements:
@@ -36,9 +36,18 @@ def run_plan_b_migrations(engine) -> None:
         with engine.connect() as conn:
             try:
                 conn.execute(text("SET lock_timeout = '2000ms';"))
-                conn.execute(text("SET statement_timeout = '5000ms';"))
+                # ALTER / CREATE INDEX 在数据量大时可能超过 5s；锁等待仍由 lock_timeout 限制
+                conn.execute(text("SET statement_timeout = '30000ms';"))
                 conn.execute(text(sql))
                 conn.commit()
-            except SQLAlchemyError as exc:
-                conn.rollback()
-                logger.warning("Skipped migration SQL due to timeout/lock: %s; err=%s", sql, exc)
+            except Exception as exc:
+                # 除 SQLAlchemy 包装异常外，底层 psycopg 也可能直接抛出，需全部捕获以免 startup 卡死
+                try:
+                    conn.rollback()
+                except Exception:
+                    pass
+                logger.warning(
+                    "Skipped migration SQL due to timeout/lock/error: %s; err=%s",
+                    sql,
+                    exc,
+                )

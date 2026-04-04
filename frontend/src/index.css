@@ -123,9 +123,43 @@
   }
 }
 
+/* 全页磨砂底 + 噪点叠层（pointer-events: none 不挡交互） */
+.app-surface {
+  position: relative;
+  isolation: isolate;
+}
+
+.app-surface::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.55;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 180px 180px;
+  mix-blend-mode: multiply;
+}
+
+.dark .app-surface::before {
+  opacity: 0.22;
+  mix-blend-mode: overlay;
+}
+
+.app-surface-inner {
+  position: relative;
+  z-index: 1;
+}
+
 @layer utilities {
   .modern-card {
     @apply rounded-xl border border-border bg-card text-card-foreground shadow-sm;
+  }
+
+  /** 主导航 / AI 壳：无圆角 + 轻磨砂 */
+  .shell-panel {
+    @apply rounded-none border border-border bg-card/85 text-card-foreground shadow-sm backdrop-blur-md backdrop-saturate-150;
   }
 
   .no-scrollbar {

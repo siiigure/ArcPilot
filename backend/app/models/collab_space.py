@@ -32,6 +32,9 @@ class CollabSpace(SQLModel, table=True):
     storage_quota: int = Field(default=0)
     used_storage: int = Field(default=0)
 
+    # 无状态邀请链：整空间「重置邀请」时递增，使旧令牌内嵌 ver 失效。
+    invite_version: int = Field(default=1, ge=1)
+
     created_at: datetime | None = Field(
         default_factory=get_datetime_utc,
         sa_type=DateTime(timezone=True),  # type: ignore

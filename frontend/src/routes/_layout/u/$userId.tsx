@@ -7,6 +7,7 @@ import type { UserPublicPreview } from "@/client"
 import { UsersService } from "@/client"
 import { PostCard } from "@/components/feed/PostCard"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useFluidLayout } from "@/contexts/fluid-layout-context"
 import { useLocale } from "@/contexts/locale-context"
 import useAuth from "@/hooks/useAuth"
 import { dicebearAvatar, mapPostPublicToFeedPost } from "@/lib/feed-map"
@@ -30,6 +31,7 @@ function displayName(u: UserPublicPreview) {
 function UserProfilePage() {
   const { userId } = Route.useParams()
   const { locale, t } = useLocale()
+  const forumCompact = useFluidLayout()?.forumViewCompact ?? false
   const { user: me } = useAuth()
   const queryClient = useQueryClient()
 
@@ -78,9 +80,7 @@ function UserProfilePage() {
 
   const answered = useMemo(
     () =>
-      (answeredQuery.data ?? []).map((p) =>
-        mapPostPublicToFeedPost(p, locale),
-      ),
+      (answeredQuery.data ?? []).map((p) => mapPostPublicToFeedPost(p, locale)),
     [answeredQuery.data, locale],
   )
 
@@ -156,7 +156,9 @@ function UserProfilePage() {
                     : "rounded-md bg-[#82ba00] px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-[#72a400]"
                 }
               >
-                {profile.is_following ? t("profile.unfollow") : t("profile.follow")}
+                {profile.is_following
+                  ? t("profile.unfollow")
+                  : t("profile.follow")}
               </button>
             ) : null}
           </div>
@@ -164,11 +166,15 @@ function UserProfilePage() {
           <div className="mt-4 flex flex-wrap gap-4 text-sm text-muted-foreground">
             <span className="inline-flex items-center gap-1.5">
               <Users className="h-4 w-4" aria-hidden />
-              <strong className="text-foreground">{profile.followers_count}</strong>{" "}
+              <strong className="text-foreground">
+                {profile.followers_count}
+              </strong>{" "}
               {t("profile.followers")}
             </span>
             <span>
-              <strong className="text-foreground">{profile.following_count}</strong>{" "}
+              <strong className="text-foreground">
+                {profile.following_count}
+              </strong>{" "}
               {t("profile.following")}
             </span>
           </div>
@@ -190,7 +196,9 @@ function UserProfilePage() {
               {t("feed.empty")}
             </div>
           ) : (
-            posts.map((post) => <PostCard key={post.id} post={post} />)
+            posts.map((post) => (
+              <PostCard key={post.id} post={post} compact={forumCompact} />
+            ))
           )}
         </TabsContent>
         <TabsContent value="answered" className="mt-0">
@@ -203,7 +211,9 @@ function UserProfilePage() {
               {t("feed.empty")}
             </div>
           ) : (
-            answered.map((post) => <PostCard key={post.id} post={post} />)
+            answered.map((post) => (
+              <PostCard key={post.id} post={post} compact={forumCompact} />
+            ))
           )}
         </TabsContent>
       </Tabs>

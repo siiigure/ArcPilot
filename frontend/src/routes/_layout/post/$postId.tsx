@@ -95,12 +95,18 @@ function PostDetailPage() {
               params={{ userId: post.author.id }}
               className="inline-flex items-center gap-2 font-medium text-foreground transition-colors hover:text-[#82ba00]"
             >
-              <User className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
+              <User
+                className="h-4 w-4 shrink-0 text-muted-foreground"
+                aria-hidden
+              />
               {post.author.name}
             </Link>
           ) : (
             <span className="inline-flex items-center gap-2 font-medium">
-              <User className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
+              <User
+                className="h-4 w-4 shrink-0 text-muted-foreground"
+                aria-hidden
+              />
               {post.author.name}
             </span>
           )}
@@ -176,4 +182,3 @@ function PostDetailPage() {
     </div>
   )
 }
-

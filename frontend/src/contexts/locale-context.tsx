@@ -1,19 +1,19 @@
 import {
   createContext,
+  type ReactNode,
   useCallback,
   useContext,
   useEffect,
   useMemo,
   useState,
-  type ReactNode,
 } from "react"
 
 import {
-  type Locale,
-  type MessageKey,
-  LOCALE_STORAGE_KEY,
   getMessage,
   getMessageWith,
+  LOCALE_STORAGE_KEY,
+  type Locale,
+  type MessageKey,
   readStoredLocale,
 } from "@/i18n/messages"
 
@@ -21,10 +21,7 @@ interface LocaleContextValue {
   locale: Locale
   setLocale: (locale: Locale) => void
   t: (key: MessageKey) => string
-  tWith: (
-    key: MessageKey,
-    vars: Record<string, string | number>,
-  ) => string
+  tWith: (key: MessageKey, vars: Record<string, string | number>) => string
 }
 
 const LocaleContext = createContext<LocaleContextValue | null>(null)

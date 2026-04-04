@@ -187,6 +187,31 @@ export async function createSpaceInvite(
   return r.data
 }
 
+/** 无状态 HMAC 邀请令牌（不写 space_invites 表），推荐用于分享链接 */
+export async function createSpaceInviteLink(
+  spaceId: string,
+  body: SpaceInviteCreateBody,
+): Promise<SpaceInvitePublic> {
+  const r = await http.post<SpaceInvitePublic>(
+    `${apiRoot()}/spaces/${spaceId}/invite/link`,
+    body,
+    { headers: await authHeaders() },
+  )
+  return r.data
+}
+
+/** Owner：重置本空间邀请（版本号 +1，作废无状态旧链；pending 表邀请置 cancelled） */
+export async function resetSpaceInvites(
+  spaceId: string,
+): Promise<{ message: string }> {
+  const r = await http.post<{ message: string }>(
+    `${apiRoot()}/spaces/${spaceId}/invite/reset`,
+    {},
+    { headers: await authHeaders() },
+  )
+  return r.data
+}
+
 export async function updateSpaceMemberRole(
   spaceId: string,
   memberUserId: string,

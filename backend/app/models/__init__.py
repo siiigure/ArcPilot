@@ -22,6 +22,7 @@ from app.models.collab_space import (
     SpaceAsset,
     SpaceInvite,
 )
+from app.models.wiki import WikiCategory, WikiDocument
 
 __all__ = [
     "SQLModel",
@@ -46,6 +47,8 @@ __all__ = [
     "CollabSpaceMember",
     "SpaceAsset",
     "SpaceInvite",
+    "WikiCategory",
+    "WikiDocument",
     "ResponseMessage",
     "Token",
     "TokenPayload",

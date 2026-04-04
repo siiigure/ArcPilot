@@ -1,6 +1,6 @@
 import type { PostPublic } from "@/client"
-import { formatRelativeTime } from "@/i18n/messages"
 import type { Locale } from "@/i18n/messages"
+import { formatRelativeTime } from "@/i18n/messages"
 import type { Post } from "@/types"
 
 export function dicebearAvatar(seed: string) {
