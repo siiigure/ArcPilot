@@ -1,5 +1,7 @@
 import re
+import time
 import uuid
+from collections import defaultdict, deque
 from datetime import datetime, timezone
 from typing import Any
 
@@ -9,10 +11,35 @@ from sqlmodel import Field, Session, SQLModel, col, func, select
 
 from app.api.deps import CurrentUser, SessionDep
 from app.core.config import settings
-from app.models import Post, PostTagLink, Reply, Tag, User
+from app.models import Post, PostTagLink, Reply, ResponseMessage, Tag, User
 
 # 每用户每日最多新建话题（空间）次数，方案 B
 TAG_CREATE_DAILY_LIMIT = 5
+
+# 删帖限流（单进程内存；多 worker 时每实例独立计数）
+_DELETE_WINDOW_SEC = 60.0
+_DELETE_MAX_PER_WINDOW = 30
+_delete_times: dict[int, deque[float]] = defaultdict(deque)
+
+
+def _enforce_delete_rate_limit(user_id: int) -> None:
+    now = time.monotonic()
+    dq = _delete_times[user_id]
+    while dq and now - dq[0] > _DELETE_WINDOW_SEC:
+        dq.popleft()
+    if len(dq) >= _DELETE_MAX_PER_WINDOW:
+        raise HTTPException(
+            status_code=429,
+            detail="删除过于频繁，请稍后再试",
+        )
+    dq.append(now)
+
+
+def _escape_ilike_pattern(term: str) -> str:
+    """转义 ILIKE 通配符，避免用户输入 % / _ 注入。"""
+    return (
+        term.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+    )
 
 
 router = APIRouter(prefix="/posts", tags=["posts"])
@@ -513,6 +540,49 @@ def list_posts(
     return results
 
 
+@router.get("/search", response_model=list[PostPublic])
+def search_posts(
+    *,
+    session: SessionDep,
+    current_user: CurrentUser,
+    q: str = Query(..., min_length=1, max_length=200),
+    skip: int = 0,
+    limit: int = Query(20, ge=1, le=50),
+) -> list[PostPublic]:
+    """
+    论坛帖子搜索（S1）：仅在**标题**上做 ILIKE 子串匹配，未删除帖；与文档「搜索分级」一致。
+
+    不支持分词、语序颠倒；后续可扩展正文 / FTS。
+    """
+    _ = current_user
+    term = q.strip()
+    if not term:
+        return []
+
+    pattern = f"%{_escape_ilike_pattern(term)}%"
+    posts_stmt = (
+        select(Post)
+        .where(Post.is_deleted == False)  # noqa: E712
+        .where(col(Post.title).ilike(pattern, escape="\\"))
+        .order_by(Post.created_at.desc())
+        .offset(skip)
+        .limit(limit)
+    )
+    posts = session.exec(posts_stmt).all()
+    post_ids = [p.id for p in posts if p.id is not None]
+    tags_map = _tags_by_post_id(session=session, post_ids=post_ids)
+
+    results: list[PostPublic] = []
+    for p in posts:
+        if p.id is None:
+            continue
+        comments = _get_reply_count(session=session, post_id=p.id)
+        tag_rows = tags_map.get(p.id, [])
+        tags_public = [_tag_to_public(t) for t in tag_rows]
+        results.append(_post_to_public(post=p, comments=comments, tags=tags_public))
+    return results
+
+
 @router.get("/{post_id}", response_model=PostPublic)
 def get_post_detail(
     *,
@@ -592,3 +662,32 @@ def create_reply(
     session.refresh(reply)
 
     return _reply_to_public(reply=reply)
+
+
+@router.delete("/{post_id}", response_model=ResponseMessage)
+def delete_post(
+    *,
+    session: SessionDep,
+    post_id: uuid.UUID,
+    current_user: CurrentUser,
+) -> ResponseMessage:
+    """
+    作者软删自己的帖子（`is_deleted=True`）。非作者 403；已删或不存在 404。
+    """
+    uid = current_user.id
+    if uid is None:
+        raise HTTPException(status_code=500, detail="Invalid user state")
+
+    _enforce_delete_rate_limit(uid)
+
+    post = session.exec(select(Post).where(Post.public_id == post_id)).first()
+    if not post or post.is_deleted:
+        raise HTTPException(status_code=404, detail="Post not found")
+
+    if post.author_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not allowed to delete this post")
+
+    post.is_deleted = True
+    session.add(post)
+    session.commit()
+    return ResponseMessage(message="Post deleted")

@@ -1,7 +1,9 @@
+import { useNavigate } from "@tanstack/react-router"
 import { useCallback, useState } from "react"
 
-/** 顶栏搜索：后续可对接 `/search` 或带 query 的路由 */
+/** 顶栏搜索：跳转 `/search?q=`，由搜索结果页调用 `PostsService.searchPosts` */
 export function useSearch() {
+  const navigate = useNavigate()
   const [query, setQuery] = useState("")
 
   const handleSearch = useCallback(
@@ -9,9 +11,9 @@ export function useSearch() {
       e.preventDefault()
       const q = query.trim()
       if (!q) return
-      // 占位：接入真实搜索时在此 navigate
+      void navigate({ to: "/search", search: { q } })
     },
-    [query],
+    [query, navigate],
   )
 
   return { query, setQuery, handleSearch }

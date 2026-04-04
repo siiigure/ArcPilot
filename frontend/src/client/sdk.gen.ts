@@ -3,7 +3,7 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { KnowledgeGetKnowledgeTreeData, KnowledgeGetKnowledgeTreeResponse, KnowledgeGetKnowledgeDocumentData, KnowledgeGetKnowledgeDocumentResponse, KnowledgeSearchKnowledgeData, KnowledgeSearchKnowledgeResponse, KnowledgeCreateKnowledgeDocumentData, KnowledgeCreateKnowledgeDocumentResponse, KnowledgeCreateKnowledgeCategoryData, KnowledgeCreateKnowledgeCategoryResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, PostsCreatePostData, PostsCreatePostResponse, PostsListPostsData, PostsListPostsResponse, PostsGetPostDetailData, PostsGetPostDetailResponse, PostsListRepliesData, PostsListRepliesResponse, PostsCreateReplyData, PostsCreateReplyResponse, PrivateCreateUserData, PrivateCreateUserResponse, SpacesListSpacesResponse, SpacesCreateSpaceData, SpacesCreateSpaceResponse, SpacesGetSpaceDetailData, SpacesGetSpaceDetailResponse, SpacesListSpaceMembersData, SpacesListSpaceMembersResponse, SpacesCreateSpaceInviteData, SpacesCreateSpaceInviteResponse, SpacesCreateSpaceInviteLinkData, SpacesCreateSpaceInviteLinkResponse, SpacesResetSpaceInvitesData, SpacesResetSpaceInvitesResponse, SpacesUpdateSpaceMemberRoleData, SpacesUpdateSpaceMemberRoleResponse, SpacesRemoveSpaceMemberData, SpacesRemoveSpaceMemberResponse, SpacesUploadStagedAssetData, SpacesUploadStagedAssetResponse, SpacesPresignSpaceAssetUploadData, SpacesPresignSpaceAssetUploadResponse, SpacesCompleteSpaceAssetUploadData, SpacesCompleteSpaceAssetUploadResponse, SpacesListSpaceAssetsData, SpacesListSpaceAssetsResponse, SpacesDownloadSpaceAssetData, SpacesDownloadSpaceAssetResponse, SpacesDeleteSpaceAssetData, SpacesDeleteSpaceAssetResponse, SpacesAcceptSpaceInviteData, SpacesAcceptSpaceInviteResponse, TagsListTagsNavResponse, TagsListTagsData, TagsListTagsResponse, TagsCreateTagData, TagsCreateTagResponse, TagsSuggestTagsData, TagsSuggestTagsResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UsersGetUserProfileData, UsersGetUserProfileResponse, UsersFollowUserData, UsersFollowUserResponse, UsersUnfollowUserData, UsersUnfollowUserResponse, UsersListUserPostsData, UsersListUserPostsResponse, UsersListUserAnsweredPostsData, UsersListUserAnsweredPostsResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse } from './types.gen';
+import type { KnowledgeGetKnowledgeTreeData, KnowledgeGetKnowledgeTreeResponse, KnowledgeGetKnowledgeDocumentData, KnowledgeGetKnowledgeDocumentResponse, KnowledgeSearchKnowledgeData, KnowledgeSearchKnowledgeResponse, KnowledgeCreateKnowledgeDocumentData, KnowledgeCreateKnowledgeDocumentResponse, KnowledgeCreateKnowledgeCategoryData, KnowledgeCreateKnowledgeCategoryResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, PostsCreatePostData, PostsCreatePostResponse, PostsListPostsData, PostsListPostsResponse, PostsSearchPostsData, PostsSearchPostsResponse, PostsGetPostDetailData, PostsGetPostDetailResponse, PostsDeletePostData, PostsDeletePostResponse, PostsListRepliesData, PostsListRepliesResponse, PostsCreateReplyData, PostsCreateReplyResponse, PrivateCreateUserData, PrivateCreateUserResponse, SpacesListSpacesResponse, SpacesCreateSpaceData, SpacesCreateSpaceResponse, SpacesGetSpaceDetailData, SpacesGetSpaceDetailResponse, SpacesListSpaceMembersData, SpacesListSpaceMembersResponse, SpacesCreateSpaceInviteData, SpacesCreateSpaceInviteResponse, SpacesCreateSpaceInviteLinkData, SpacesCreateSpaceInviteLinkResponse, SpacesResetSpaceInvitesData, SpacesResetSpaceInvitesResponse, SpacesUpdateSpaceMemberRoleData, SpacesUpdateSpaceMemberRoleResponse, SpacesRemoveSpaceMemberData, SpacesRemoveSpaceMemberResponse, SpacesUploadStagedAssetData, SpacesUploadStagedAssetResponse, SpacesPresignSpaceAssetUploadData, SpacesPresignSpaceAssetUploadResponse, SpacesCompleteSpaceAssetUploadData, SpacesCompleteSpaceAssetUploadResponse, SpacesListSpaceAssetsData, SpacesListSpaceAssetsResponse, SpacesDownloadSpaceAssetData, SpacesDownloadSpaceAssetResponse, SpacesDeleteSpaceAssetData, SpacesDeleteSpaceAssetResponse, SpacesAcceptSpaceInviteData, SpacesAcceptSpaceInviteResponse, TagsListTagsNavResponse, TagsListTagsData, TagsListTagsResponse, TagsCreateTagData, TagsCreateTagResponse, TagsSuggestTagsData, TagsSuggestTagsResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UsersGetUserProfileData, UsersGetUserProfileResponse, UsersFollowUserData, UsersFollowUserResponse, UsersUnfollowUserData, UsersUnfollowUserResponse, UsersListUserPostsData, UsersListUserPostsResponse, UsersListUserAnsweredPostsData, UsersListUserAnsweredPostsResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse } from './types.gen';
 
 export class KnowledgeService {
     /**
@@ -280,6 +280,33 @@ export class PostsService {
     }
     
     /**
+     * Search Posts
+     * 论坛帖子搜索（S1）：仅在**标题**上做 ILIKE 子串匹配，未删除帖；与文档「搜索分级」一致。
+     *
+     * 不支持分词、语序颠倒；后续可扩展正文 / FTS。
+     * @param data The data for the request.
+     * @param data.q
+     * @param data.skip
+     * @param data.limit
+     * @returns PostPublic Successful Response
+     * @throws ApiError
+     */
+    public static searchPosts(data: PostsSearchPostsData): CancelablePromise<PostsSearchPostsResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/posts/search',
+            query: {
+                q: data.q,
+                skip: data.skip,
+                limit: data.limit
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
      * Get Post Detail
      * 获取帖子详情（详情页首屏：正文优先）。
      * @param data The data for the request.
@@ -290,6 +317,27 @@ export class PostsService {
     public static getPostDetail(data: PostsGetPostDetailData): CancelablePromise<PostsGetPostDetailResponse> {
         return __request(OpenAPI, {
             method: 'GET',
+            url: '/api/v1/posts/{post_id}',
+            path: {
+                post_id: data.postId
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Delete Post
+     * 作者软删自己的帖子（`is_deleted=True`）。非作者 403；已删或不存在 404。
+     * @param data The data for the request.
+     * @param data.postId
+     * @returns ResponseMessage Successful Response
+     * @throws ApiError
+     */
+    public static deletePost(data: PostsDeletePostData): CancelablePromise<PostsDeletePostResponse> {
+        return __request(OpenAPI, {
+            method: 'DELETE',
             url: '/api/v1/posts/{post_id}',
             path: {
                 post_id: data.postId

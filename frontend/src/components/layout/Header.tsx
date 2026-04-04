@@ -1,4 +1,4 @@
-import { Link, useRouterState, useSearch } from "@tanstack/react-router"
+import { Link } from "@tanstack/react-router"
 import {
   AlignLeft,
   AlignRight,
@@ -23,7 +23,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useAppShell } from "@/contexts/app-shell-context"
-import { useCreateComposer } from "@/contexts/create-composer-context"
 import { useFluidLayout } from "@/contexts/fluid-layout-context"
 import { useLocale } from "@/contexts/locale-context"
 import { useSearch as useHeaderSearch } from "@/hooks/use-search"
@@ -43,46 +42,17 @@ function userInitials(email: string, fullName: string | null | undefined) {
   return email.slice(0, 2).toUpperCase()
 }
 
-function useWorkspaceStatusLabel() {
-  const { t } = useLocale()
-  const pathname = useRouterState({ select: (s) => s.location.pathname })
-  const loose = useSearch({ strict: false })
-  const tagName =
-    typeof loose.tagName === "string" ? loose.tagName.trim() : undefined
-
-  let forumFocus = t("header.ctxHome")
-  if (pathname === "/") {
-    forumFocus = tagName || t("header.ctxHome")
-  } else if (pathname.startsWith("/topics")) {
-    forumFocus = t("topics.title")
-  } else if (pathname.startsWith("/knowledge")) {
-    forumFocus = t("sidebar.knowledgeBase")
-  } else if (pathname.startsWith("/spaces")) {
-    forumFocus = t("sidebar.collabSpaces")
-  } else if (pathname.startsWith("/post/")) {
-    forumFocus = t("header.ctxPostView")
-  } else if (pathname.startsWith("/u/")) {
-    forumFocus = t("profile.tabPosts")
-  } else if (pathname.startsWith("/settings")) {
-    forumFocus = t("header.accountSettings")
-  }
-
-  return `${t("header.ctxForum")}: ${forumFocus} ${t("header.ctxSep")} ${t("header.ctxAi")}`
-}
-
 export const Header = () => {
   const { query, setQuery, handleSearch } = useHeaderSearch()
   const { user, logout } = useAuth()
   const { navOpen, toggleNav, aiOpen, toggleAi } = useAppShell()
-  const { openComposer } = useCreateComposer()
   const { locale, setLocale, t } = useLocale()
   const fluid = useFluidLayout()
-  const statusLine = useWorkspaceStatusLabel()
 
   return (
     <header className="sticky top-0 z-50 shrink-0 border-b border-border bg-background/90 shadow-sm backdrop-blur-md backdrop-saturate-150 supports-[backdrop-filter]:bg-background/75">
-      <div className="flex h-14 w-full items-center gap-2 px-3 sm:gap-3 sm:px-4">
-        <div className="flex min-w-0 shrink-0 items-center gap-2">
+      <div className="grid h-14 w-full grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 px-3 sm:gap-3 sm:px-4">
+        <div className="flex min-w-0 items-center gap-2 justify-self-start">
           <button
             type="button"
             onClick={toggleNav}
@@ -100,74 +70,63 @@ export const Header = () => {
           </Link>
         </div>
 
-        <form
-          onSubmit={handleSearch}
-          className="relative min-w-0 max-w-md flex-1 md:max-w-lg lg:max-w-xl"
-        >
-          <div className="pointer-events-none absolute inset-y-0 left-3 flex items-center">
-            <Search className="h-4 w-4 text-muted-foreground" />
+        <div className="w-[min(100vw-8rem,22rem)] min-w-0 justify-self-center sm:w-[min(100vw-10rem,26rem)] md:w-[min(100vw-12rem,32rem)]">
+          <form onSubmit={handleSearch} className="relative w-full">
+            <div className="pointer-events-none absolute inset-y-0 left-3 flex items-center">
+              <Search className="h-4 w-4 text-muted-foreground" />
+            </div>
+            <input
+              type="text"
+              className="w-full rounded-xl border border-input bg-muted/60 py-2 pr-4 pl-10 text-sm text-foreground shadow-sm transition-[box-shadow,background-color] focus:border-[#82ba00]/35 focus:bg-background focus:shadow-md focus:ring-2 focus:ring-[#82ba00]/25 focus:outline-none dark:bg-muted/40 dark:focus:bg-background/80"
+              placeholder={t("header.searchPlaceholder")}
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+          </form>
+        </div>
+
+        <div className="flex shrink-0 items-center justify-end gap-1 justify-self-end md:gap-2">
+          <div className="hidden shrink-0 items-center gap-0.5 border-r border-border pr-2 lg:flex">
+            <button
+              type="button"
+              title={t("header.layoutForum")}
+              onClick={() => fluid?.applyPreset("forum")}
+              className={cn(
+                "inline-flex h-9 w-9 items-center justify-center rounded-none border transition-colors",
+                fluid?.preset === "forum"
+                  ? "border-primary/40 bg-primary/10 text-primary"
+                  : "border-transparent text-muted-foreground hover:bg-muted",
+              )}
+            >
+              <AlignLeft className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              title={t("header.layoutBalanced")}
+              onClick={() => fluid?.applyPreset("balanced")}
+              className={cn(
+                "inline-flex h-9 w-9 items-center justify-center rounded-none border transition-colors",
+                fluid?.preset === "balanced"
+                  ? "border-primary/40 bg-primary/10 text-primary"
+                  : "border-transparent text-muted-foreground hover:bg-muted",
+              )}
+            >
+              <Columns2 className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              title={t("header.layoutAi")}
+              onClick={() => fluid?.applyPreset("ai")}
+              className={cn(
+                "inline-flex h-9 w-9 items-center justify-center rounded-none border transition-colors",
+                fluid?.preset === "ai"
+                  ? "border-primary/40 bg-primary/10 text-primary"
+                  : "border-transparent text-muted-foreground hover:bg-muted",
+              )}
+            >
+              <AlignRight className="h-4 w-4" />
+            </button>
           </div>
-          <input
-            type="text"
-            className="w-full rounded-md border border-input bg-muted/60 py-1.5 pr-4 pl-10 text-sm text-foreground transition-colors focus:ring-2 focus:ring-[#82ba00]/40 focus:outline-none dark:bg-muted/40"
-            placeholder={t("header.searchPlaceholder")}
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
-        </form>
-
-        <div className="hidden min-w-0 flex-1 px-2 lg:block lg:max-w-md lg:flex-none">
-          <p
-            className="truncate text-center text-xs text-muted-foreground sm:text-sm"
-            title={statusLine}
-          >
-            {statusLine}
-          </p>
-        </div>
-
-        <div className="hidden shrink-0 items-center gap-0.5 border-r border-border pr-2 lg:flex">
-          <button
-            type="button"
-            title={t("header.layoutForum")}
-            onClick={() => fluid?.applyPreset("forum")}
-            className={cn(
-              "inline-flex h-9 w-9 items-center justify-center rounded-none border transition-colors",
-              fluid?.preset === "forum"
-                ? "border-primary/40 bg-primary/10 text-primary"
-                : "border-transparent text-muted-foreground hover:bg-muted",
-            )}
-          >
-            <AlignLeft className="h-4 w-4" />
-          </button>
-          <button
-            type="button"
-            title={t("header.layoutBalanced")}
-            onClick={() => fluid?.applyPreset("balanced")}
-            className={cn(
-              "inline-flex h-9 w-9 items-center justify-center rounded-none border transition-colors",
-              fluid?.preset === "balanced"
-                ? "border-primary/40 bg-primary/10 text-primary"
-                : "border-transparent text-muted-foreground hover:bg-muted",
-            )}
-          >
-            <Columns2 className="h-4 w-4" />
-          </button>
-          <button
-            type="button"
-            title={t("header.layoutAi")}
-            onClick={() => fluid?.applyPreset("ai")}
-            className={cn(
-              "inline-flex h-9 w-9 items-center justify-center rounded-none border transition-colors",
-              fluid?.preset === "ai"
-                ? "border-primary/40 bg-primary/10 text-primary"
-                : "border-transparent text-muted-foreground hover:bg-muted",
-            )}
-          >
-            <AlignRight className="h-4 w-4" />
-          </button>
-        </div>
-
-        <div className="flex shrink-0 items-center gap-1 md:gap-2">
           <button
             type="button"
             onClick={toggleAi}
@@ -205,13 +164,6 @@ export const Header = () => {
               </DropdownMenuRadioGroup>
             </DropdownMenuContent>
           </DropdownMenu>
-          <button
-            type="button"
-            onClick={() => openComposer("ask")}
-            className="inline-flex shrink-0 rounded-full bg-[#82ba00] px-2.5 py-1.5 text-xs font-medium text-white shadow-sm transition-colors hover:bg-[#72a400] sm:px-4 sm:text-sm"
-          >
-            {t("header.ask")}
-          </button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button

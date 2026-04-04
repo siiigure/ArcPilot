@@ -2,10 +2,10 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
 import {
   Copy,
-  Flag,
   MessageSquare,
   MoreHorizontal,
   Share2,
+  Trash2,
   UserMinus,
   UserPlus,
 } from "lucide-react"
@@ -15,34 +15,29 @@ import ReactMarkdown from "react-markdown"
 import { toast } from "sonner"
 
 import { UsersService } from "@/client"
+import { DeletePostDialog } from "@/components/feed/DeletePostDialog"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useLocale } from "@/contexts/locale-context"
 import useAuth from "@/hooks/useAuth"
-import { hidePostId } from "@/lib/hidden-posts"
 import type { Post } from "@/types"
 
 interface PostCardProps {
   post: Post
-  onPostHidden?: () => void
   /** 论坛列极窄时的标题列表态 */
   compact?: boolean
 }
 
-export const PostCard = ({
-  post,
-  onPostHidden,
-  compact = false,
-}: PostCardProps) => {
+export const PostCard = ({ post, compact = false }: PostCardProps) => {
   const { t } = useLocale()
   const { user } = useAuth()
   const queryClient = useQueryClient()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [deleteOpen, setDeleteOpen] = useState(false)
   const authorId = post.author.id ?? null
   const isSelf = !!(user && authorId && user.id === authorId)
 
@@ -77,16 +72,6 @@ export const PostCard = ({
     toast.success(t("post.copyDone"))
   }
 
-  const report = () => {
-    toast.success(t("post.reportThanks"))
-  }
-
-  const notInterested = () => {
-    hidePostId(post.id)
-    onPostHidden?.()
-    toast.message(t("post.hiddenToast"))
-  }
-
   const toggleFollow = () => {
     if (!authorId || isSelf) return
     followMutation.mutate()
@@ -109,7 +94,7 @@ export const PostCard = ({
   }
 
   return (
-    <article className="mb-4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition-colors dark:border-[#3e4042] dark:bg-[#242526]">
+    <article className="mb-4 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-colors dark:border-[#3e4042] dark:bg-[#242526]">
       <div className="p-4">
         <div className="mb-3 flex items-center gap-2">
           <img
@@ -202,10 +187,6 @@ export const PostCard = ({
                 <Copy className="mr-2 h-4 w-4" />
                 {t("post.menuCopyLink")}
               </DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => report()}>
-                <Flag className="mr-2 h-4 w-4" />
-                {t("post.menuReport")}
-              </DropdownMenuItem>
               {authorId && !isSelf ? (
                 <DropdownMenuItem
                   disabled={followMutation.isPending || profileQuery.isLoading}
@@ -219,14 +200,24 @@ export const PostCard = ({
                   {following ? t("post.menuUnfollow") : t("post.menuFollow")}
                 </DropdownMenuItem>
               ) : null}
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onSelect={() => notInterested()}>
-                {t("post.menuNotInterested")}
-              </DropdownMenuItem>
+              {isSelf ? (
+                <DropdownMenuItem
+                  className="text-destructive focus:text-destructive"
+                  onSelect={() => setDeleteOpen(true)}
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  {t("post.deleteMenu")}
+                </DropdownMenuItem>
+              ) : null}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </div>
+      <DeletePostDialog
+        postId={post.id}
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+      />
     </article>
   )
 }

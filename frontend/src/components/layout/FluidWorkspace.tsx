@@ -124,7 +124,7 @@ export function FluidWorkspace({ closeOverlays }: FluidWorkspaceProps) {
       >
         <SheetContent
           side="left"
-          className="w-[min(100%,20rem)] border-r border-border p-0 sm:max-w-xs rounded-none"
+          className="w-[min(100%,20rem)] rounded-r-2xl border-r border-border p-0 sm:max-w-xs"
         >
           <LeftSidebar compactNav={false} />
         </SheetContent>
@@ -138,7 +138,7 @@ export function FluidWorkspace({ closeOverlays }: FluidWorkspaceProps) {
       >
         <SheetContent
           side="right"
-          className="w-[min(100%,24rem)] border-l border-border p-0 sm:max-w-md rounded-none"
+          className="w-[min(100%,24rem)] rounded-l-2xl border-l border-border p-0 sm:max-w-md"
         >
           <RightSidebar aiSplitLayout={false} />
         </SheetContent>

@@ -463,11 +463,25 @@ export type PostsListPostsData = {
 
 export type PostsListPostsResponse = (Array<PostPublic>);
 
+export type PostsSearchPostsData = {
+    limit?: number;
+    q: string;
+    skip?: number;
+};
+
+export type PostsSearchPostsResponse = (Array<PostPublic>);
+
 export type PostsGetPostDetailData = {
     postId: string;
 };
 
 export type PostsGetPostDetailResponse = (PostPublic);
+
+export type PostsDeletePostData = {
+    postId: string;
+};
+
+export type PostsDeletePostResponse = (ResponseMessage);
 
 export type PostsListRepliesData = {
     postId: string;

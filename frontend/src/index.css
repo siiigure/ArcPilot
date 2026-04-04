@@ -42,7 +42,7 @@
 }
 
 :root {
-  --radius: 0.625rem;
+  --radius: 0.8125rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -154,10 +154,10 @@
 
 @layer utilities {
   .modern-card {
-    @apply rounded-xl border border-border bg-card text-card-foreground shadow-sm;
+    @apply rounded-2xl border border-border bg-card text-card-foreground shadow-sm;
   }
 
-  /** 主导航 / AI 壳：无圆角 + 轻磨砂 */
+  /** 侧栏内层（贴论坛/主内容或 AI 分栏处保持直角，由外层 aside 控制分割边） */
   .shell-panel {
     @apply rounded-none border border-border bg-card/85 text-card-foreground shadow-sm backdrop-blur-md backdrop-saturate-150;
   }

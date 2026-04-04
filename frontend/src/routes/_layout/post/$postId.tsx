@@ -1,12 +1,15 @@
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { createFileRoute, Link } from "@tanstack/react-router"
-import { ChevronLeft, Sparkles, User } from "lucide-react"
+import { ChevronLeft, Sparkles, Trash2, User } from "lucide-react"
 import { useMemo, useState } from "react"
 
 import { PostsService } from "@/client"
+import { DeletePostDialog } from "@/components/feed/DeletePostDialog"
+import { Button } from "@/components/ui/button"
 import { useAiChat } from "@/contexts/ai-chat-context"
 import { useLocale } from "@/contexts/locale-context"
-import type { Locale } from "@/i18n/messages"
+import useAuth from "@/hooks/useAuth"
+import { formatChinaWallTime, type Locale } from "@/i18n/messages"
 
 export const Route = createFileRoute("/_layout/post/$postId")({
   component: PostDetailPage,
@@ -39,7 +42,9 @@ function PostDetailPage() {
   const { postId } = Route.useParams()
   const { injectMessage } = useAiChat()
   const { locale, t } = useLocale()
+  const { user } = useAuth()
   const [replyBody, setReplyBody] = useState("")
+  const [deleteOpen, setDeleteOpen] = useState(false)
 
   const postQuery = useQuery({
     queryKey: ["post", postId],
@@ -83,6 +88,8 @@ function PostDetailPage() {
   }
 
   const post = postQuery.data
+  const isAuthor = !!(user && post.author.id && user.id === post.author.id)
+  const timeLabel = formatChinaWallTime(post.timestamp, locale)
 
   return (
     <div className="mx-auto max-w-2xl pb-10">
@@ -111,19 +118,42 @@ function PostDetailPage() {
             </span>
           )}
         </div>
-        <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-          <div className="text-xs text-muted-foreground">{post.timestamp}</div>
-          <button
-            type="button"
-            onClick={() =>
-              injectMessage(formatPostForAi(locale, post.title, post.content))
-            }
-            className="inline-flex items-center gap-1.5 rounded-md border border-[#82ba00]/40 bg-[#82ba00]/10 px-3 py-1.5 text-xs font-medium text-[#5a8000] transition-colors hover:bg-[#82ba00]/20 dark:text-[#a3d94d]"
-            aria-label={t("post.sendToAiAria")}
+        <div className="mb-2 flex min-h-8 flex-nowrap items-center justify-between gap-3">
+          <time
+            dateTime={post.timestamp}
+            className="min-w-0 flex-1 truncate text-xs text-muted-foreground tabular-nums"
+            title={post.timestamp}
           >
-            <Sparkles className="h-3.5 w-3.5 shrink-0" aria-hidden />
-            {t("post.sendToAi")}
-          </button>
+            {timeLabel}
+          </time>
+          <div className="flex shrink-0 items-center gap-1">
+            {isAuthor ? (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-8 px-2 text-xs font-normal text-muted-foreground hover:bg-muted hover:text-foreground"
+                onClick={() => setDeleteOpen(true)}
+              >
+                <Trash2 className="mr-1 h-3.5 w-3.5 opacity-70" aria-hidden />
+                {t("post.deleteMenu")}
+              </Button>
+            ) : null}
+            <button
+              type="button"
+              onClick={() =>
+                injectMessage(formatPostForAi(locale, post.title, post.content))
+              }
+              className="inline-flex h-8 items-center gap-1 rounded-md px-2 text-xs font-normal text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              aria-label={t("post.sendToAiAria")}
+            >
+              <Sparkles
+                className="h-3.5 w-3.5 shrink-0 opacity-70"
+                aria-hidden
+              />
+              {t("post.sendToAi")}
+            </button>
+          </div>
         </div>
         <h1 className="mb-3 text-xl font-bold leading-tight">{post.title}</h1>
         <div className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">
@@ -135,8 +165,11 @@ function PostDetailPage() {
         <h2 className="mb-3 text-sm font-semibold">回复</h2>
 
         <div className="mb-4 space-y-2">
-          <label className="text-sm font-medium">写下你的回复</label>
+          <label htmlFor="post-reply-body" className="text-sm font-medium">
+            写下你的回复
+          </label>
           <textarea
+            id="post-reply-body"
             value={replyBody}
             onChange={(e) => setReplyBody(e.target.value)}
             rows={4}
@@ -170,8 +203,8 @@ function PostDetailPage() {
           <ul className="space-y-3">
             {repliesQuery.data!.map((r) => (
               <li key={r.id} className="rounded-md border border-border p-3">
-                <div className="mb-1 text-xs text-muted-foreground">
-                  {r.author.name} · {r.timestamp}
+                <div className="mb-1 text-xs text-muted-foreground tabular-nums">
+                  {r.author.name} · {formatChinaWallTime(r.timestamp, locale)}
                 </div>
                 <div className="whitespace-pre-wrap text-sm">{r.content}</div>
               </li>
@@ -179,6 +212,13 @@ function PostDetailPage() {
           </ul>
         )}
       </section>
+
+      <DeletePostDialog
+        postId={postId}
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        navigateHomeOnSuccess
+      />
     </div>
   )
 }

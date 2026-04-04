@@ -74,7 +74,7 @@ export const LeftSidebar = ({ compactNav = false }: LeftSidebarProps) => {
           <button
             type="button"
             onClick={() => fluid?.toggleNavRail()}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-none text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
             title={
               compactNav ? t("sidebar.expandRail") : t("sidebar.collapseRail")
             }
@@ -94,7 +94,7 @@ export const LeftSidebar = ({ compactNav = false }: LeftSidebarProps) => {
           <button
             type="button"
             onClick={closeNav}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-none text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
             aria-label={t("sidebar.closeNav")}
           >
             <X className="h-5 w-5" />
@@ -148,14 +148,14 @@ export const LeftSidebar = ({ compactNav = false }: LeftSidebarProps) => {
               onClick={closeNav}
               title={t("sidebar.browseTopics")}
               className={cn(
-                "group flex w-full items-center text-sm transition-all hover:bg-gray-100/50 dark:hover:bg-white/5 rounded-none",
+                "group flex w-full items-center rounded-xl text-sm transition-all hover:bg-gray-100/50 dark:hover:bg-white/5",
                 compactNav ? "justify-center p-2.5" : "gap-3 p-2.5",
                 pathname.startsWith("/topics")
                   ? "bg-[#82ba00]/10 text-[#82ba00]"
                   : "text-gray-600 dark:text-gray-300",
               )}
             >
-              <div className="bg-[#82ba00]/15 p-1.5 text-[#82ba00] transition-transform group-hover:scale-110 dark:bg-[#82ba00]/20 rounded-none">
+              <div className="rounded-lg bg-[#82ba00]/15 p-1.5 text-[#82ba00] transition-transform group-hover:scale-110 dark:bg-[#82ba00]/20">
                 <Rss className="h-4 w-4" />
               </div>
               {!compactNav ? (
@@ -178,7 +178,7 @@ export const LeftSidebar = ({ compactNav = false }: LeftSidebarProps) => {
                   onClick={closeNav}
                   title={tag.name}
                   className={cn(
-                    "group flex w-full items-center text-sm transition-all hover:bg-gray-100/50 dark:hover:bg-white/5 rounded-none",
+                    "group flex w-full items-center rounded-xl text-sm transition-all hover:bg-gray-100/50 dark:hover:bg-white/5",
                     compactNav ? "justify-center p-2.5" : "gap-3 p-2.5",
                     topicActive
                       ? "bg-[#82ba00]/10 text-[#82ba00]"
@@ -187,7 +187,7 @@ export const LeftSidebar = ({ compactNav = false }: LeftSidebarProps) => {
                 >
                   <div
                     className={cn(
-                      "bg-gray-50 p-1.5 dark:bg-white/5 rounded-none transition-transform group-hover:scale-110",
+                      "rounded-lg bg-gray-50 p-1.5 transition-transform group-hover:scale-110 dark:bg-white/5",
                       colorClass,
                     )}
                   >
@@ -248,7 +248,7 @@ function NavItem({
       onClick={onNavigate}
       title={label}
       className={cn(
-        "group flex w-full items-center text-sm font-semibold transition-all rounded-none",
+        "group flex w-full items-center rounded-xl text-sm font-semibold transition-all",
         compact ? "justify-center p-3" : "gap-3 p-3",
         active
           ? "bg-[#82ba00]/10 text-[#82ba00] shadow-sm"

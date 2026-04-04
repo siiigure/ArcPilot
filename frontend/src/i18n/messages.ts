@@ -25,14 +25,14 @@ const zh = {
   "header.ask": "提问",
   "header.accountSettings": "账户设置",
   "header.logout": "退出登录",
-  "header.openAi": "打开 AI 助手",
-  "header.closeAi": "关闭 AI 助手",
+  "header.openAi": "打开 Aris",
+  "header.closeAi": "关闭 Aris",
   "header.layoutForum": "论坛为主布局",
   "header.layoutBalanced": "均衡布局",
-  "header.layoutAi": "AI 为主布局",
+  "header.layoutAi": "Aris 为主布局",
   "header.ctxSep": "·",
   "header.ctxForum": "论坛",
-  "header.ctxAi": "AI",
+  "header.ctxAi": "Aris",
   "header.ctxHome": "首页",
   "header.ctxPostView": "帖子",
 
@@ -48,9 +48,11 @@ const zh = {
   "sidebar.spaces": "空间",
   "sidebar.createSpace": "创建空间",
 
-  "ai.closeAria": "关闭 AI 助手",
-  "ai.greeting": "你好！我是 Arcpilot AI。今天我能帮你什么？",
+  "ai.name": "Aris",
+  "ai.closeAria": "关闭 Aris",
+  "ai.greeting": "你好！我是 Aris。今天我能帮你什么？",
   "ai.subtitle": "智能助手",
+  "ai.footerNote": "由 ArcPilot 驱动",
   "ai.inputPlaceholder": "输入消息…",
   "ai.unavailable": "对话能力尚未接入服务端，请稍后再试。",
 
@@ -69,8 +71,8 @@ const zh = {
   "quickPost.post": "发帖",
 
   "post.backHome": "返回主页",
-  "post.sendToAi": "发送到 AI 助手",
-  "post.sendToAiAria": "将本帖内容发送到右侧 AI 对话框",
+  "post.sendToAi": "发送给 Aris",
+  "post.sendToAiAria": "将本帖内容发送到右侧 Aris 对话",
 
   "profile.loading": "加载资料中…",
   "profile.notFound": "用户不存在或已删除。",
@@ -84,13 +86,25 @@ const zh = {
 
   "post.menuMore": "更多操作",
   "post.menuCopyLink": "复制链接",
-  "post.menuReport": "举报",
   "post.menuFollow": "关注作者",
   "post.menuUnfollow": "取消关注",
-  "post.menuNotInterested": "不感兴趣",
   "post.copyDone": "链接已复制",
-  "post.reportThanks": "感谢反馈，我们会尽快处理",
-  "post.hiddenToast": "将减少展示类似内容",
+  "post.deleteMenu": "删除帖子",
+  "post.deleteConfirmTitle": "删除这条帖子？",
+  "post.deleteConfirmBody": "删除后其他人将无法在列表中看到；回复会随帖子一并隐藏展示。此操作不可从界面恢复。",
+  "post.deleteConfirm": "删除",
+  "post.deleteCancel": "取消",
+  "post.deleteSuccess": "帖子已删除",
+
+  "search.title": "搜索帖子",
+  "search.hintTitleOnly": "当前仅匹配标题中的关键词（子串），不支持分词或语序调换。",
+  "search.backHome": "返回首页",
+  "search.loading": "正在搜索…",
+  "search.error": "搜索失败，请稍后重试。",
+  "search.emptyNoQuery": "在顶部搜索框输入关键词并回车，即可在此查看结果。",
+  "search.emptyNoResults": "没有找到标题里包含该关键词的帖子。试试别的词，或浏览话题、发新帖。",
+  "search.suggestTopics": "浏览话题",
+  "search.suggestPost": "去发帖",
 
   "topics.title": "话题",
   "topics.subtitle": "浏览社区话题；新建话题请在发帖时添加。",
@@ -189,14 +203,14 @@ const en = {
   "header.ask": "Ask",
   "header.accountSettings": "Account settings",
   "header.logout": "Log out",
-  "header.openAi": "Open AI assistant",
-  "header.closeAi": "Close AI assistant",
+  "header.openAi": "Open Aris",
+  "header.closeAi": "Close Aris",
   "header.layoutForum": "Forum-first layout",
   "header.layoutBalanced": "Balanced layout",
-  "header.layoutAi": "AI-first layout",
+  "header.layoutAi": "Aris-first layout",
   "header.ctxSep": "·",
   "header.ctxForum": "Forum",
-  "header.ctxAi": "AI",
+  "header.ctxAi": "Aris",
   "header.ctxHome": "Home",
   "header.ctxPostView": "Post",
 
@@ -212,9 +226,11 @@ const en = {
   "sidebar.spaces": "Spaces",
   "sidebar.createSpace": "Create Space",
 
-  "ai.closeAria": "Close AI assistant",
-  "ai.greeting": "Hello! I'm Arcpilot AI. How can I help you today?",
-  "ai.subtitle": "Intelligent Assistant",
+  "ai.name": "Aris",
+  "ai.closeAria": "Close Aris",
+  "ai.greeting": "Hello! I'm Aris. How can I help you today?",
+  "ai.subtitle": "Assistant",
+  "ai.footerNote": "Powered by ArcPilot",
   "ai.inputPlaceholder": "Type your message…",
   "ai.unavailable": "Assistant is not connected yet. Please try again later.",
 
@@ -234,8 +250,8 @@ const en = {
   "quickPost.post": "Post",
 
   "post.backHome": "Back to home",
-  "post.sendToAi": "Send to AI",
-  "post.sendToAiAria": "Send this post to the AI panel on the right",
+  "post.sendToAi": "Send to Aris",
+  "post.sendToAiAria": "Send this post to Aris on the right",
 
   "profile.loading": "Loading profile…",
   "profile.notFound": "User not found.",
@@ -249,13 +265,29 @@ const en = {
 
   "post.menuMore": "More",
   "post.menuCopyLink": "Copy link",
-  "post.menuReport": "Report",
   "post.menuFollow": "Follow author",
   "post.menuUnfollow": "Unfollow",
-  "post.menuNotInterested": "Not interested",
   "post.copyDone": "Link copied",
-  "post.reportThanks": "Thanks — we'll review it",
-  "post.hiddenToast": "We'll show fewer posts like this",
+  "post.deleteMenu": "Delete post",
+  "post.deleteConfirmTitle": "Delete this post?",
+  "post.deleteConfirmBody":
+    "Others will no longer see it in feeds; replies stay hidden with the thread. You cannot undo this from the UI.",
+  "post.deleteConfirm": "Delete",
+  "post.deleteCancel": "Cancel",
+  "post.deleteSuccess": "Post deleted",
+
+  "search.title": "Search posts",
+  "search.hintTitleOnly":
+    "Matches substrings in titles only — no tokenization or word reordering.",
+  "search.backHome": "Back to home",
+  "search.loading": "Searching…",
+  "search.error": "Search failed. Try again later.",
+  "search.emptyNoQuery":
+    "Type a keyword in the header search box and press Enter to see results here.",
+  "search.emptyNoResults":
+    "No posts with that keyword in the title. Try other words, browse topics, or create a post.",
+  "search.suggestTopics": "Browse topics",
+  "search.suggestPost": "Create a post",
 
   "topics.title": "Topics",
   "topics.subtitle":
@@ -396,4 +428,34 @@ export function formatRelativeTime(iso: string, locale: Locale): string {
   }
 
   return d.toLocaleDateString(locale === "zh" ? "zh-CN" : "en-US")
+}
+
+/** 详情页/回复：按东八区（Asia/Shanghai）显示绝对时间，避免直接展示 UTC ISO 串 */
+export function formatChinaWallTime(iso: string, locale: Locale): string {
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return iso
+
+  if (locale === "zh") {
+    const s = new Intl.DateTimeFormat("zh-CN", {
+      timeZone: "Asia/Shanghai",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    }).format(d)
+    return `${s}（北京时间）`
+  }
+
+  const s = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Asia/Shanghai",
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(d)
+  return `${s} (GMT+8)`
 }

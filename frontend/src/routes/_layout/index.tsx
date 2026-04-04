@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query"
 import { createFileRoute, Link } from "@tanstack/react-router"
-import { useState } from "react"
 import { z } from "zod"
 import { ApiError, PostsService } from "@/client"
 import { PostCard } from "@/components/feed/PostCard"
@@ -8,7 +7,6 @@ import { QuickPostBox } from "@/components/feed/QuickPostBox"
 import { useFluidLayout } from "@/contexts/fluid-layout-context"
 import { useLocale } from "@/contexts/locale-context"
 import { mapPostPublicToFeedPost } from "@/lib/feed-map"
-import { getHiddenPostIds } from "@/lib/hidden-posts"
 import { isUuidString } from "@/lib/uuid"
 import type { Post } from "@/types"
 
@@ -34,7 +32,6 @@ function FeedHome() {
   const forumCompact = useFluidLayout()?.forumViewCompact ?? false
   const { tagId: tagIdRaw, tagName } = Route.useSearch()
   const tagId = isUuidString(tagIdRaw) ? tagIdRaw : undefined
-  const [, setFeedTick] = useState(0)
 
   const mainQuery = useQuery({
     queryKey: ["feedPosts", tagId ?? "all"],
@@ -62,11 +59,7 @@ function FeedHome() {
       ? fallbackQuery.data
       : (mainQuery.data ?? [])
 
-  const hidden = getHiddenPostIds()
-  const posts: Post[] =
-    rawList
-      .map((p) => mapPostPublicToFeedPost(p, locale))
-      .filter((p) => !hidden.has(p.id)) ?? []
+  const posts: Post[] = rawList.map((p) => mapPostPublicToFeedPost(p, locale))
 
   const loading =
     mainQuery.isLoading || (needFallback && fallbackQuery.isLoading)
@@ -124,12 +117,7 @@ function FeedHome() {
             </div>
           ) : (
             posts.map((post) => (
-              <PostCard
-                key={post.id}
-                post={post}
-                compact={forumCompact}
-                onPostHidden={() => setFeedTick((n) => n + 1)}
-              />
+              <PostCard key={post.id} post={post} compact={forumCompact} />
             ))
           )}
         </>
@@ -139,12 +127,7 @@ function FeedHome() {
         </div>
       ) : (
         posts.map((post) => (
-          <PostCard
-            key={post.id}
-            post={post}
-            compact={forumCompact}
-            onPostHidden={() => setFeedTick((n) => n + 1)}
-          />
+          <PostCard key={post.id} post={post} compact={forumCompact} />
         ))
       )}
     </div>

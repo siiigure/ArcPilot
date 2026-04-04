@@ -9,7 +9,7 @@ export const QuickPostBox = () => {
 
   return (
     <div
-      className="mb-4 rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
+      className="bg-card text-card-foreground mb-4 rounded-2xl border border-border p-4 shadow-sm"
       onClick={(e) => e.stopPropagation()}
       onPointerDown={(e) => e.stopPropagation()}
     >
@@ -22,14 +22,14 @@ export const QuickPostBox = () => {
           readOnly
           placeholder={t("quickPost.placeholder")}
           onClick={() => openComposer("ask")}
-          className="flex-grow cursor-pointer rounded-full border border-gray-200 bg-[#F1F2F2] px-4 py-2 text-sm transition-colors hover:bg-gray-200 focus:outline-none"
+          className="border-input bg-muted text-foreground placeholder:text-muted-foreground hover:bg-accent/60 dark:hover:bg-accent/40 h-8 min-h-8 flex-grow cursor-pointer rounded-full border px-3 text-sm leading-8 transition-colors focus:outline-none"
         />
       </div>
-      <div className="flex justify-around border-t border-gray-50 pt-2 text-sm text-gray-500">
+      <div className="flex justify-around  text-sm text-gray-500">
         <button
           type="button"
           onClick={() => openComposer("ask")}
-          className="flex items-center gap-2 rounded-md px-4 py-2 transition-colors hover:bg-gray-100"
+          className="flex items-center gap-2 rounded-md px-4 transition-colors hover:bg-gray-100"
         >
           <MessageSquare className="h-4 w-4" /> {t("quickPost.ask")}
         </button>

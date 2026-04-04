@@ -16,6 +16,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as LayoutRouteImport } from './routes/_layout'
 import { Route as LayoutIndexRouteImport } from './routes/_layout/index'
 import { Route as LayoutSettingsRouteImport } from './routes/_layout/settings'
+import { Route as LayoutSearchRouteImport } from './routes/_layout/search'
 import { Route as LayoutTopicsIndexRouteImport } from './routes/_layout/topics/index'
 import { Route as LayoutSpacesIndexRouteImport } from './routes/_layout/spaces/index'
 import { Route as LayoutKnowledgeIndexRouteImport } from './routes/_layout/knowledge/index'
@@ -59,6 +60,11 @@ const LayoutIndexRoute = LayoutIndexRouteImport.update({
 const LayoutSettingsRoute = LayoutSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => LayoutRoute,
+} as any)
+const LayoutSearchRoute = LayoutSearchRouteImport.update({
+  id: '/search',
+  path: '/search',
   getParentRoute: () => LayoutRoute,
 } as any)
 const LayoutTopicsIndexRoute = LayoutTopicsIndexRouteImport.update({
@@ -120,6 +126,7 @@ export interface FileRoutesByFullPath {
   '/recover-password': typeof RecoverPasswordRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
+  '/search': typeof LayoutSearchRoute
   '/settings': typeof LayoutSettingsRoute
   '/knowledge/$spaceId': typeof LayoutKnowledgeSpaceIdRouteWithChildren
   '/post/$postId': typeof LayoutPostPostIdRoute
@@ -137,6 +144,7 @@ export interface FileRoutesByTo {
   '/recover-password': typeof RecoverPasswordRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
+  '/search': typeof LayoutSearchRoute
   '/settings': typeof LayoutSettingsRoute
   '/': typeof LayoutIndexRoute
   '/post/$postId': typeof LayoutPostPostIdRoute
@@ -156,6 +164,7 @@ export interface FileRoutesById {
   '/recover-password': typeof RecoverPasswordRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
+  '/_layout/search': typeof LayoutSearchRoute
   '/_layout/settings': typeof LayoutSettingsRoute
   '/_layout/': typeof LayoutIndexRoute
   '/_layout/knowledge/$spaceId': typeof LayoutKnowledgeSpaceIdRouteWithChildren
@@ -177,6 +186,7 @@ export interface FileRouteTypes {
     | '/recover-password'
     | '/reset-password'
     | '/signup'
+    | '/search'
     | '/settings'
     | '/knowledge/$spaceId'
     | '/post/$postId'
@@ -194,6 +204,7 @@ export interface FileRouteTypes {
     | '/recover-password'
     | '/reset-password'
     | '/signup'
+    | '/search'
     | '/settings'
     | '/'
     | '/post/$postId'
@@ -212,6 +223,7 @@ export interface FileRouteTypes {
     | '/recover-password'
     | '/reset-password'
     | '/signup'
+    | '/_layout/search'
     | '/_layout/settings'
     | '/_layout/'
     | '/_layout/knowledge/$spaceId'
@@ -283,6 +295,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof LayoutSettingsRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/search': {
+      id: '/_layout/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof LayoutSearchRouteImport
       parentRoute: typeof LayoutRoute
     }
     '/_layout/topics/': {
@@ -375,6 +394,7 @@ const LayoutKnowledgeSpaceIdRouteWithChildren =
   )
 
 interface LayoutRouteChildren {
+  LayoutSearchRoute: typeof LayoutSearchRoute
   LayoutSettingsRoute: typeof LayoutSettingsRoute
   LayoutIndexRoute: typeof LayoutIndexRoute
   LayoutKnowledgeSpaceIdRoute: typeof LayoutKnowledgeSpaceIdRouteWithChildren
@@ -388,6 +408,7 @@ interface LayoutRouteChildren {
 }
 
 const LayoutRouteChildren: LayoutRouteChildren = {
+  LayoutSearchRoute: LayoutSearchRoute,
   LayoutSettingsRoute: LayoutSettingsRoute,
   LayoutIndexRoute: LayoutIndexRoute,
   LayoutKnowledgeSpaceIdRoute: LayoutKnowledgeSpaceIdRouteWithChildren,
