@@ -1,6 +1,13 @@
 from sqlmodel import SQLModel
 
+from app.models.ai import AiSession, Message
 from app.models.auth import NewPassword, ResponseMessage, Token, TokenPayload
+from app.models.collab_space import (
+    CollabSpace,
+    CollabSpaceMember,
+    SpaceAsset,
+    SpaceInvite,
+)
 from app.models.common import get_datetime_utc
 from app.models.content import Post, PostTagLink, Reply, Tag
 from app.models.user import (
@@ -14,13 +21,7 @@ from app.models.user import (
     UsersPublic,
     UserUpdate,
     UserUpdateMe,
-)
-from app.models.ai import AiSession, Message
-from app.models.collab_space import (
-    CollabSpace,
-    CollabSpaceMember,
-    SpaceAsset,
-    SpaceInvite,
+    user_to_public,
 )
 from app.models.wiki import WikiCategory, WikiDocument
 
@@ -37,6 +38,7 @@ __all__ = [
     "UserFollow",
     "UserPublic",
     "UsersPublic",
+    "user_to_public",
     "PostTagLink",
     "Tag",
     "Post",

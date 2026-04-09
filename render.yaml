@@ -1,7 +1,28 @@
+# Render Blueprint：仓库根目录在 arcpilot/ 时使用。
+# Dashboard 手动创建 Web Service 时：Root Directory 填 backend，构建/启动命令与下一致。
 services:
   - type: web
     name: ArcPilot
     runtime: python
     rootDir: backend
-    buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    # 项目用 pyproject.toml + hatchling，无 requirements.txt
+    buildCommand: pip install .
+    # 应用模块为 app.main（勿用 main:app）
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: PYTHON_VERSION
+        value: "3.12.8"
+    # 在 Render 创建 PostgreSQL 后，把该实例的 Internal Database URL 拷到 Web Service 的 DATABASE_URL。
+    # 或使用 fromDatabase（需与本文件 databases 段中的 name 一致）：
+    # - key: DATABASE_URL
+    #   fromDatabase:
+    #     name: arcpilot-db
+    #     property: connectionString
+
+# 若使用 Blueprint 一键建库，取消注释并同步修改 Web 服务的 DATABASE_URL fromDatabase：
+# databases:
+#   - name: arcpilot-db
+#     databaseName: arcpilot
+#     user: arcpilot

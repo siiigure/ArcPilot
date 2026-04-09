@@ -22,27 +22,11 @@ from app.models import (
     UsersPublic,
     UserUpdate,
     UserUpdateMe,
+    user_to_public,
 )
 from app.utils import generate_new_account_email, send_email
 
 router = APIRouter(prefix="/users", tags=["users"])
-
-
-def _user_to_public(user: User) -> UserPublic:
-    return UserPublic(
-        id=user.public_id,
-        email=user.email,
-        is_active=user.is_active,
-        is_superuser=user.is_superuser,
-        full_name=user.full_name,
-        username=user.username,
-        phone_number=user.phone_number,
-        display_name=user.display_name,
-        avatar_url=user.avatar_url,
-        bio=user.bio,
-        profile_metadata=user.profile_metadata,
-        date_joined=user.date_joined,
-    )
 
 
 @router.get(
@@ -63,7 +47,7 @@ def read_users(session: SessionDep, skip: int = 0, limit: int = 100) -> Any:
     )
     users = session.exec(statement).all()
 
-    return UsersPublic(data=[_user_to_public(u) for u in users], count=count)
+    return UsersPublic(data=[user_to_public(u) for u in users], count=count)
 
 
 @router.post(
@@ -90,7 +74,7 @@ def create_user(*, session: SessionDep, user_in: UserCreate) -> Any:
             subject=email_data.subject,
             html_content=email_data.html_content,
         )
-    return _user_to_public(user)
+    return user_to_public(user)
 
 
 @router.patch("/me", response_model=UserPublic)
@@ -112,7 +96,7 @@ def update_user_me(
     session.add(current_user)
     session.commit()
     session.refresh(current_user)
-    return _user_to_public(current_user)
+    return user_to_public(current_user)
 
 
 @router.patch("/me/password", response_model=ResponseMessage)
@@ -141,7 +125,7 @@ def read_user_me(current_user: CurrentUser) -> Any:
     """
     Get current user.
     """
-    return _user_to_public(current_user)
+    return user_to_public(current_user)
 
 
 @router.delete("/me", response_model=ResponseMessage)
@@ -171,7 +155,7 @@ def register_user(session: SessionDep, user_in: UserRegister) -> Any:
         )
     user_create = UserCreate.model_validate(user_in)
     user = crud.create_user(session=session, user_create=user_create)
-    return _user_to_public(user)
+    return user_to_public(user)
 
 
 @router.get("/{user_id}", response_model=UserPublic)
@@ -183,7 +167,7 @@ def read_user_by_id(
     """
     user = session.exec(select(User).where(User.public_id == user_id)).first()
     if user == current_user:
-        return _user_to_public(user)
+        return user_to_public(user)
     if not current_user.is_superuser:
         raise HTTPException(
             status_code=403,
@@ -191,7 +175,7 @@ def read_user_by_id(
         )
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
-    return _user_to_public(user)
+    return user_to_public(user)
 
 
 @router.patch(
@@ -223,7 +207,7 @@ def update_user(
             )
 
     db_user = crud.update_user(session=session, db_user=db_user, user_in=user_in)
-    return _user_to_public(db_user)
+    return user_to_public(db_user)
 
 
 @router.delete("/{user_id}", dependencies=[Depends(get_current_active_superuser)])

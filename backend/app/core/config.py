@@ -25,6 +25,23 @@ def parse_cors(v: Any) -> list[str] | str:
     raise ValueError(v)
 
 
+def database_url_to_psycopg(dsn: str) -> str:
+    """Render 等托管方常用 postgres:// 或 postgresql://，SQLAlchemy+psycopg3 需 postgresql+psycopg://。"""
+    s = dsn.strip()
+    if s.startswith("postgres://"):
+        s = "postgresql://" + s[len("postgres://") :]
+    scheme, sep, rest = s.partition("://")
+    if not sep:
+        raise ValueError("Invalid DATABASE_URL: missing ://")
+    if scheme == "postgresql+psycopg":
+        return s
+    if scheme == "postgresql":
+        return f"postgresql+psycopg://{rest}"
+    raise ValueError(
+        f"Unsupported DATABASE_URL scheme {scheme!r}; expected postgres or postgresql"
+    )
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         # Use top level .env file (one level above ./backend/)
@@ -52,15 +69,19 @@ class Settings(BaseSettings):
 
     PROJECT_NAME: str
     SENTRY_DSN: HttpUrl | None = None
-    POSTGRES_SERVER: str
+    # 与 Render PostgreSQL 的「Internal Database URL」一致时可只设此项，无需再拆 POSTGRES_*。
+    DATABASE_URL: str | None = None
+    POSTGRES_SERVER: str = ""
     POSTGRES_PORT: int = 5432
-    POSTGRES_USER: str
+    POSTGRES_USER: str = ""
     POSTGRES_PASSWORD: str = ""
     POSTGRES_DB: str = ""
 
     @computed_field  # type: ignore[prop-decorator]
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> PostgresDsn:
+        if self.DATABASE_URL and self.DATABASE_URL.strip():
+            return PostgresDsn(database_url_to_psycopg(self.DATABASE_URL))
         return PostgresDsn.build(
             scheme="postgresql+psycopg",
             username=self.POSTGRES_USER,
@@ -83,6 +104,17 @@ class Settings(BaseSettings):
     def _set_default_emails_from(self) -> Self:
         if not self.EMAILS_FROM_NAME:
             self.EMAILS_FROM_NAME = self.PROJECT_NAME
+        return self
+
+    @model_validator(mode="after")
+    def _require_database_config(self) -> Self:
+        if self.DATABASE_URL and self.DATABASE_URL.strip():
+            return self
+        if not self.POSTGRES_SERVER or not self.POSTGRES_USER or not self.POSTGRES_DB:
+            raise ValueError(
+                "数据库未配置：请设置环境变量 DATABASE_URL（托管平台常用），"
+                "或同时设置 POSTGRES_SERVER、POSTGRES_USER、POSTGRES_DB。"
+            )
         return self
 
     EMAIL_RESET_TOKEN_EXPIRE_HOURS: int = 48
@@ -132,7 +164,8 @@ class Settings(BaseSettings):
     @model_validator(mode="after")
     def _enforce_non_default_secrets(self) -> Self:
         self._check_default_secret("SECRET_KEY", self.SECRET_KEY)
-        self._check_default_secret("POSTGRES_PASSWORD", self.POSTGRES_PASSWORD)
+        if not (self.DATABASE_URL and self.DATABASE_URL.strip()):
+            self._check_default_secret("POSTGRES_PASSWORD", self.POSTGRES_PASSWORD)
         self._check_default_secret(
             "FIRST_SUPERUSER_PASSWORD", self.FIRST_SUPERUSER_PASSWORD
         )

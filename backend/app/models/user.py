@@ -104,6 +104,24 @@ class UserPublic(UserBase):
     date_joined: datetime | None = None
 
 
+def user_to_public(user: User) -> UserPublic:
+    """对外 API 的 id 为 public_id，勿直接序列化 User（会暴露整型主键）。"""
+    return UserPublic(
+        id=user.public_id,
+        email=user.email,
+        is_active=user.is_active,
+        is_superuser=user.is_superuser,
+        full_name=user.full_name,
+        username=user.username,
+        phone_number=user.phone_number,
+        display_name=user.display_name,
+        avatar_url=user.avatar_url,
+        bio=user.bio,
+        profile_metadata=user.profile_metadata,
+        date_joined=user.date_joined,
+    )
+
+
 class UsersPublic(SQLModel):
     data: list[UserPublic]
     count: int
