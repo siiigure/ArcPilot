@@ -7,7 +7,20 @@ from app.core.config import settings
 from app.core.migrate_plan_b import run_plan_b_migrations
 from app.models import User, UserCreate
 
-engine = create_engine(str(settings.SQLALCHEMY_DATABASE_URI))
+database_url = str(settings.SQLALCHEMY_DATABASE_URI)
+engine_kwargs = {
+    "pool_pre_ping": True,
+    "pool_recycle": 300,
+}
+if not database_url.startswith("sqlite"):
+    engine_kwargs.update(
+        {
+            "pool_size": 5,
+            "max_overflow": 10,
+        }
+    )
+
+engine = create_engine(database_url, **engine_kwargs)
 
 
 # make sure all SQLModel models are imported (app.models) before initializing DB
