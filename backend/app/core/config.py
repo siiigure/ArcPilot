@@ -44,8 +44,9 @@ def database_url_to_psycopg(dsn: str) -> str:
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        # Use top level .env file (one level above ./backend/)
-        env_file="../.env",
+        # 优先读取系统环境变量；本地开发时可选加载 .env（文件不存在也不会报错）
+        env_file=".env",
+        env_file_encoding="utf-8",
         env_ignore_empty=True,
         extra="ignore",
     )
