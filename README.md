@@ -1,5 +1,13 @@
 # ArcPilot
 
+![Repo Size](https://img.shields.io/github/repo-size/siiigure/ArcPilot?style=flat-square)
+![Last Commit](https://img.shields.io/github/last-commit/siiigure/ArcPilot?style=flat-square)
+![License](https://img.shields.io/github/license/siiigure/ArcPilot?style=flat-square&color=blue)
+![React](https://img.shields.io/badge/React-20232A?style=flat-square&logo=react&logoColor=61DAFB)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=flat-square&logo=tailwindcss&logoColor=white)
+
 ArcPilot is a community + AI helper project for geospatial and domain-specific workflows.
 
 Project status: **active development**.
