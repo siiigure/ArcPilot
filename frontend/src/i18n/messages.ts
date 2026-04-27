@@ -73,6 +73,7 @@ const zh = {
   "post.backHome": "返回主页",
   "post.sendToAi": "发送给 Aris",
   "post.sendToAiAria": "将本帖内容发送到右侧 Aris 对话",
+  "post.readMore": "查看详情",
 
   "profile.loading": "加载资料中…",
   "profile.notFound": "用户不存在或已删除。",
@@ -252,6 +253,7 @@ const en = {
   "post.backHome": "Back to home",
   "post.sendToAi": "Send to Aris",
   "post.sendToAiAria": "Send this post to Aris on the right",
+  "post.readMore": "Read details",
 
   "profile.loading": "Loading profile…",
   "profile.notFound": "User not found.",

@@ -11,7 +11,6 @@ import {
 } from "lucide-react"
 import type { ReactNode } from "react"
 import { useState } from "react"
-import ReactMarkdown from "react-markdown"
 import { toast } from "sonner"
 
 import { UsersService } from "@/client"
@@ -78,6 +77,12 @@ export const PostCard = ({ post, compact = false }: PostCardProps) => {
   }
 
   const following = profileQuery.data?.is_following === true
+  const contentPreview = post.content
+    .replace(/!\[[^\]]*\]\([^)]+\)/g, "")
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+    .replace(/[#>*`~-]/g, "")
+    .replace(/\s+/g, " ")
+    .trim()
 
   if (compact) {
     return (
@@ -94,8 +99,8 @@ export const PostCard = ({ post, compact = false }: PostCardProps) => {
   }
 
   return (
-    <article className="mb-4 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-colors dark:border-[#3e4042] dark:bg-[#242526]">
-      <div className="p-4">
+    <article className="mb-4 h-[320px] overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-colors dark:border-[#3e4042] dark:bg-[#242526]">
+      <div className="flex h-full flex-col p-4">
         <div className="mb-3 flex items-center gap-2">
           <img
             src={post.author.avatar}
@@ -141,25 +146,32 @@ export const PostCard = ({ post, compact = false }: PostCardProps) => {
         </h2>
 
         <div className="mb-3 text-[15px] leading-normal text-gray-700 dark:text-[#e4e6eb]">
-          <ReactMarkdown>{post.content}</ReactMarkdown>
-          {post.content.length > 150 && (
-            <span className="ml-1 cursor-pointer text-gray-400 hover:underline dark:text-gray-500">
-              (more)
-            </span>
-          )}
+          <p className="line-clamp-4 whitespace-pre-wrap break-words">
+            {contentPreview || post.content}
+          </p>
         </div>
 
         {post.image && (
-          <div className="-mx-4 mb-4 border-y border-gray-100 dark:border-[#3e4042]">
+          <div className="-mx-4 mb-3 border-y border-gray-100 dark:border-[#3e4042]">
             <img
               src={post.image}
               alt="Post content"
-              className="max-h-[500px] w-full object-cover"
+              className="h-24 w-full object-cover"
             />
           </div>
         )}
 
-        <div className="flex items-center gap-1 pt-1 text-gray-500 dark:text-gray-400">
+        <div className="mb-2">
+          <Link
+            to="/post/$postId"
+            params={{ postId: post.id }}
+            className="text-sm font-medium text-[#82ba00] underline-offset-2 hover:underline"
+          >
+            {t("post.readMore")}
+          </Link>
+        </div>
+
+        <div className="mt-auto flex items-center gap-1 pt-1 text-gray-500 dark:text-gray-400">
           <ActionButton
             icon={<MessageSquare className="h-4 w-4" />}
             label={post.comments}
