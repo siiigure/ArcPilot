@@ -167,7 +167,7 @@ function SignUp() {
 
             <LoadingButton
               type="submit"
-              className="w-full"
+              className="w-full border-0 bg-[#82ba00] text-[#0f1a00] hover:bg-[#74a800] dark:bg-[#5f8600] dark:text-[#efffc8] dark:hover:bg-[#6d9800]"
               loading={signUpMutation.isPending}
             >
               Sign Up
@@ -176,7 +176,10 @@ function SignUp() {
 
           <div className="text-center text-sm">
             Already have an account?{" "}
-            <RouterLink to="/login" className="underline underline-offset-4">
+            <RouterLink
+              to="/login"
+              className="font-semibold text-[#6f9f00] underline underline-offset-4 hover:text-[#5b8500] dark:text-[#9ed032] dark:hover:text-[#b6df5a]"
+            >
               Log in
             </RouterLink>
           </div>

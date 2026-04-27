@@ -124,7 +124,11 @@ function Login() {
               )}
             />
 
-            <LoadingButton type="submit" loading={loginMutation.isPending}>
+            <LoadingButton
+              type="submit"
+              className="w-full border-0 bg-[#82ba00] text-[#0f1a00] hover:bg-[#74a800] dark:bg-[#5f8600] dark:text-[#efffc8] dark:hover:bg-[#6d9800]"
+              loading={loginMutation.isPending}
+            >
               Log In
             </LoadingButton>
             {loginMutation.isPending ? (
@@ -137,7 +141,10 @@ function Login() {
 
           <div className="text-center text-sm">
             Don't have an account yet?{" "}
-            <RouterLink to="/signup" className="underline underline-offset-4">
+            <RouterLink
+              to="/signup"
+              className="font-semibold text-[#6f9f00] underline underline-offset-4 hover:text-[#5b8500] dark:text-[#9ed032] dark:hover:text-[#b6df5a]"
+            >
               Sign up
             </RouterLink>
           </div>
