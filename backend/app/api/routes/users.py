@@ -29,6 +29,20 @@ from app.utils import generate_new_account_email, send_email
 router = APIRouter(prefix="/users", tags=["users"])
 
 
+def _get_user_by_path_id(session: SessionDep, user_id: str) -> User | None:
+    try:
+        public_id = uuid.UUID(user_id)
+        user = session.exec(select(User).where(User.public_id == public_id)).first()
+        if user:
+            return user
+    except ValueError:
+        pass
+
+    if user_id.isdigit():
+        return session.get(User, int(user_id))
+    return None
+
+
 @router.get(
     "/",
     dependencies=[Depends(get_current_active_superuser)],
@@ -160,12 +174,12 @@ def register_user(session: SessionDep, user_in: UserRegister) -> Any:
 
 @router.get("/{user_id}", response_model=UserPublic)
 def read_user_by_id(
-    user_id: uuid.UUID, session: SessionDep, current_user: CurrentUser
+    user_id: str, session: SessionDep, current_user: CurrentUser
 ) -> Any:
     """
     Get a specific user by id.
     """
-    user = session.exec(select(User).where(User.public_id == user_id)).first()
+    user = _get_user_by_path_id(session, user_id)
     if user == current_user:
         return user_to_public(user)
     if not current_user.is_superuser:
@@ -186,14 +200,14 @@ def read_user_by_id(
 def update_user(
     *,
     session: SessionDep,
-    user_id: uuid.UUID,
+    user_id: str,
     user_in: UserUpdate,
 ) -> Any:
     """
     Update a user.
     """
 
-    db_user = session.exec(select(User).where(User.public_id == user_id)).first()
+    db_user = _get_user_by_path_id(session, user_id)
     if not db_user:
         raise HTTPException(
             status_code=404,
@@ -201,7 +215,7 @@ def update_user(
         )
     if user_in.email:
         existing_user = crud.get_user_by_email(session=session, email=user_in.email)
-        if existing_user and existing_user.public_id != user_id:
+        if existing_user and existing_user.id != db_user.id:
             raise HTTPException(
                 status_code=409, detail="User with this email already exists"
             )
@@ -212,12 +226,12 @@ def update_user(
 
 @router.delete("/{user_id}", dependencies=[Depends(get_current_active_superuser)])
 def delete_user(
-    session: SessionDep, current_user: CurrentUser, user_id: uuid.UUID
+    session: SessionDep, current_user: CurrentUser, user_id: str
 ) -> ResponseMessage:
     """
     Delete a user.
     """
-    user = session.exec(select(User).where(User.public_id == user_id)).first()
+    user = _get_user_by_path_id(session, user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     if user == current_user:

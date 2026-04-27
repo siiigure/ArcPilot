@@ -8,11 +8,7 @@ export const QuickPostBox = () => {
   const { t } = useLocale()
 
   return (
-    <div
-      className="bg-card text-card-foreground mb-4 rounded-2xl border border-border p-4 shadow-sm"
-      onClick={(e) => e.stopPropagation()}
-      onPointerDown={(e) => e.stopPropagation()}
-    >
+    <div className="bg-card text-card-foreground mb-4 rounded-2xl border border-border p-4 shadow-sm">
       <div className="mb-2 flex items-center gap-3">
         <div className="h-9 w-9 flex-shrink-0 overflow-hidden rounded-full bg-gray-200">
           <User className="h-full w-full p-2 text-gray-400" />

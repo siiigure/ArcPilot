@@ -54,7 +54,7 @@ function PostNewPage() {
 
       <div className="rounded-lg border border-border bg-background p-4 shadow-sm">
         <div className="mb-4 space-y-2">
-          <label className="text-sm font-medium">标题</label>
+          <div className="text-sm font-medium">标题</div>
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
@@ -64,7 +64,7 @@ function PostNewPage() {
         </div>
 
         <div className="mb-4 space-y-2">
-          <label className="text-sm font-medium">正文</label>
+          <div className="text-sm font-medium">正文</div>
           <textarea
             value={body}
             onChange={(e) => setBody(e.target.value)}
@@ -76,7 +76,7 @@ function PostNewPage() {
 
         <div className="mb-6 space-y-2">
           <div className="flex items-center justify-between">
-            <label className="text-sm font-medium">标签（可选）</label>
+            <div className="text-sm font-medium">标签（可选）</div>
             {tagsQuery.isLoading ? (
               <span className="text-xs text-muted-foreground">加载中…</span>
             ) : tagsQuery.isError ? (
@@ -94,7 +94,7 @@ function PostNewPage() {
               {tags.map((t) => {
                 const checked = selectedTagIds.has(t.id)
                 return (
-                  <label
+                  <div
                     key={t.id}
                     className="flex cursor-pointer items-center gap-2 rounded-md border border-border px-3 py-2 text-sm hover:bg-muted/30"
                   >
@@ -111,7 +111,7 @@ function PostNewPage() {
                     <span className="ml-auto text-xs text-muted-foreground">
                       {t.slug}
                     </span>
-                  </label>
+                  </div>
                 )
               })}
             </div>

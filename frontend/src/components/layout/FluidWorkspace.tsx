@@ -52,7 +52,10 @@ export function FluidWorkspace({ closeOverlays }: FluidWorkspaceProps) {
       >
         {/* biome-ignore lint/a11y/noStaticElementInteractions: 点击主内容区关闭抽屉浮层（与原壳一致） */}
         {/* biome-ignore lint/a11y/useKeyWithClickEvents: 无键盘等效需求 */}
-        <div onClick={closeOverlays} className="mx-auto min-h-0 w-full max-w-3xl pb-6">
+        <div
+          onClick={closeOverlays}
+          className="mx-auto min-h-0 w-full max-w-3xl pb-6"
+        >
           <Outlet />
         </div>
       </div>

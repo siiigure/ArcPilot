@@ -92,18 +92,21 @@ const zh = {
   "post.copyDone": "链接已复制",
   "post.deleteMenu": "删除帖子",
   "post.deleteConfirmTitle": "删除这条帖子？",
-  "post.deleteConfirmBody": "删除后其他人将无法在列表中看到；回复会随帖子一并隐藏展示。此操作不可从界面恢复。",
+  "post.deleteConfirmBody":
+    "删除后其他人将无法在列表中看到；回复会随帖子一并隐藏展示。此操作不可从界面恢复。",
   "post.deleteConfirm": "删除",
   "post.deleteCancel": "取消",
   "post.deleteSuccess": "帖子已删除",
 
   "search.title": "搜索帖子",
-  "search.hintTitleOnly": "当前仅匹配标题中的关键词（子串），不支持分词或语序调换。",
+  "search.hintTitleOnly":
+    "当前仅匹配标题中的关键词（子串），不支持分词或语序调换。",
   "search.backHome": "返回首页",
   "search.loading": "正在搜索…",
   "search.error": "搜索失败，请稍后重试。",
   "search.emptyNoQuery": "在顶部搜索框输入关键词并回车，即可在此查看结果。",
-  "search.emptyNoResults": "没有找到标题里包含该关键词的帖子。试试别的词，或浏览话题、发新帖。",
+  "search.emptyNoResults":
+    "没有找到标题里包含该关键词的帖子。试试别的词，或浏览话题、发新帖。",
   "search.suggestTopics": "浏览话题",
   "search.suggestPost": "去发帖",
 

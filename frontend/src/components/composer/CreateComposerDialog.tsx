@@ -395,7 +395,7 @@ function ComposerPostForm({
             {tags.map((tg) => {
               const checked = selectedTagIds.has(tg.id)
               return (
-                <label
+                <div
                   key={tg.id}
                   className="flex cursor-pointer items-center gap-2 rounded-md border border-border px-3 py-2 text-sm hover:bg-muted/30"
                 >
@@ -412,7 +412,7 @@ function ComposerPostForm({
                   <span className="ml-auto text-xs text-muted-foreground">
                     {tg.slug}
                   </span>
-                </label>
+                </div>
               )
             })}
           </div>
