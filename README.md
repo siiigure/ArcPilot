@@ -98,20 +98,4 @@ bun run lint
 bun run build
 ```
 
-### E2E Notes (Playwright)
 
-Some E2E tests are currently failing, which means test expectations and current behavior are not fully aligned yet.
-
----
-
-## Render Notes
-
-- Using Render Blueprint: keep `render.yaml` at repository root
-- Manual setup: set Root Directory to `frontend` and `backend` respectively
-
----
-
-## Docs
-
-- Main docs are in `docs/`
-- Draft version is kept in `readme正经版.md`
