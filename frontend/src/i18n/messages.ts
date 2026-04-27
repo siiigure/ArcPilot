@@ -54,7 +54,7 @@ const zh = {
   "ai.subtitle": "智能助手",
   "ai.footerNote": "由 ArcPilot 驱动",
   "ai.inputPlaceholder": "输入消息…",
-  "ai.unavailable": "对话能力尚未接入服务端，请稍后再试。",
+  "ai.unavailable": "稍等几天哦！让本AI去催一催石羽赶紧接入RAG վ'ᴗ' ի ",
 
   "feed.loading": "正在加载帖子…",
   "feed.error": "加载失败，请稍后重试。",
